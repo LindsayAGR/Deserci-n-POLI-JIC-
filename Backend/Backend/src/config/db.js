@@ -14,7 +14,7 @@ const pool = mysql.createPool({
   ...(isCloud && {
     ssl: {
       minVersion: 'TLSv1.2',
-      rejectUnauthorized: true
+      rejectUnauthorized: false
     }
   }),
 
