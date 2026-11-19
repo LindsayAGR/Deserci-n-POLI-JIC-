@@ -1,0 +1,2850 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kairós</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===== Tokens ===== */
+:root{--font-ui:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;--r-card:18px;--r-ctl:10px;--drawer-w:380px;--ease:cubic-bezier(.2,.7,.2,1)}
+:root[data-theme="dark"]{color-scheme:dark;
+ --bg:#060913;--bg-2:#0b0f19;--surface:rgba(18,24,42,.58);--surface-hi:rgba(26,34,58,.82);--field:rgba(6,9,19,.6);
+ --border:rgba(148,163,184,.15);--border-hi:rgba(226,177,60,.45);--text:#e8ebf7;--muted:#8d95b0;--faint:#5d6580;
+ --accent:#e2b13c;--accent-ink:#1a1405;--accent-soft:rgba(226,177,60,.13);--accent2:#35b0b0;
+ --k-navy:#8fb0e8;--k-gold:#e2b13c;--k-crim:#d1425f;--k-teal:#35b0b0;
+ --shadow:0 1px 0 rgba(255,255,255,.05) inset,0 18px 40px -18px rgba(0,0,0,.8);--shadow-hi:0 1px 0 rgba(255,255,255,.07) inset,0 26px 50px -16px rgba(0,0,0,.9);
+ --glow-a:rgba(53,176,176,.13);--glow-b:rgba(226,177,60,.09);
+ --crit:#fb7185;--crit-bg:rgba(244,63,94,.15);--high:#fb923c;--high-bg:rgba(249,115,22,.15);--mid:#facc15;--mid-bg:rgba(234,179,8,.14);--ok:#4ade80;--ok-bg:rgba(34,197,94,.14);
+ --term-bg:#04060d;--term-text:#b8c0dc;--grid:rgba(148,163,184,.11)}
+:root[data-theme="light"]{color-scheme:light;
+ --bg:#f8fafc;--bg-2:#ffffff;--surface:rgba(255,255,255,.75);--surface-hi:rgba(255,255,255,.96);--field:rgba(248,250,252,.95);
+ --border:rgba(27,54,93,.12);--border-hi:rgba(27,54,93,.4);--text:#0f1b2e;--muted:#566680;--faint:#97a3b8;
+ --accent:#1b365d;--accent-ink:#ffffff;--accent-soft:rgba(27,54,93,.08);--accent2:#207878;
+ --k-navy:#1b365d;--k-gold:#d9a62e;--k-crim:#7f1734;--k-teal:#207878;
+ --shadow:0 1px 0 #fff inset,0 12px 30px -16px rgba(27,54,93,.2);--shadow-hi:0 1px 0 #fff inset,0 24px 44px -18px rgba(27,54,93,.32);
+ --glow-a:rgba(32,120,120,.10);--glow-b:rgba(217,166,46,.12);
+ --crit:#be123c;--crit-bg:rgba(190,18,60,.10);--high:#c2410c;--high-bg:rgba(249,115,22,.14);--mid:#854d0e;--mid-bg:rgba(234,179,8,.20);--ok:#15803d;--ok-bg:rgba(34,197,94,.13);
+ --term-bg:#0b1020;--term-text:#c3cbe6;--grid:rgba(27,54,93,.08)}
+
+/* ===== Base ===== */
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;font-family:var(--font-ui);font-size:14.5px;line-height:1.55;color:var(--text);
+ background:radial-gradient(900px 520px at 100% -10%,var(--glow-a),transparent 62%),radial-gradient(800px 520px at -10% 110%,var(--glow-b),transparent 62%),var(--bg);background-attachment:fixed;-webkit-font-smoothing:antialiased;transition:background-color .3s var(--ease),color .3s var(--ease)}
+h1,h2,h3,p{margin:0}button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}
+.mono{font-family:var(--font-mono);font-size:.92em}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+::selection{background:var(--accent);color:var(--accent-ink)}
+svg.ico{width:18px;height:18px;flex:none}
+
+/* ===== Escudo institucional ===== */
+.crest{--s:.25;height:calc(196px*var(--s));width:auto;flex:none;display:block}
+
+/* ===== Estructura ===== */
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.topbar{display:flex;align-items:center;gap:18px;padding:10px 20px;flex:none;border-bottom:1px solid var(--border);background:var(--surface);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);z-index:40}
+.brand{display:flex;align-items:center;gap:11px}
+.kmark{width:38px;height:38px;flex:none}
+.brand-text b{display:block;font-size:17px;font-weight:800;letter-spacing:.2em;line-height:1.1;color:var(--k-navy)}
+.brand-text small{font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.02em}
+.inst{display:flex;align-items:center;gap:11px;padding-left:18px;border-left:1px solid var(--border)}
+.inst-name{font-size:12.5px;font-weight:700;line-height:1.25}.inst-name small{display:block;font-weight:500;color:var(--muted);font-size:12px}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.theme-switch{display:inline-grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border-radius:999px;background:var(--field);border:1px solid var(--border)}
+.theme-switch button{display:flex;align-items:center;gap:6px;padding:6px 12px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-weight:600;font-size:12.5px;transition:background .2s var(--ease),color .2s var(--ease)}
+.theme-switch button svg{width:14px;height:14px}
+.theme-switch button:hover{color:var(--text)}
+.theme-switch button[aria-checked="true"]{background:var(--accent);color:var(--accent-ink)}
+.status{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--field);border:1px solid var(--border);white-space:nowrap}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.status[data-state="online"]{color:var(--ok)}.status[data-state="online"] i{background:var(--ok);box-shadow:0 0 0 4px var(--ok-bg)}
+.status[data-state="demo"]{color:var(--high)}.status[data-state="demo"] i{background:var(--high);box-shadow:0 0 0 4px var(--high-bg)}
+.status[data-state="offline"]{color:var(--crit)}.status[data-state="offline"] i{background:var(--crit);box-shadow:0 0 0 4px var(--crit-bg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 16px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface-hi);font-weight:600;font-size:13.5px;transition:transform .15s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease)}
+.btn:hover{border-color:var(--border-hi);transform:translateY(-1px)}.btn:active{transform:scale(.98)}
+.btn svg{width:16px;height:16px}
+.btn-primary{border-color:transparent;background:var(--accent);color:var(--accent-ink);box-shadow:0 10px 22px -12px var(--accent)}
+.btn-primary:hover{border-color:transparent;box-shadow:0 14px 28px -10px var(--accent)}
+.btn-ok{border-color:transparent;background:#16a34a;color:#fff}
+.btn-ok:hover{background:#15803d;border-color:transparent}
+.btn-block{width:100%;padding:11px 16px}.btn[disabled]{opacity:.55;pointer-events:none}.btn-sm{padding:6px 12px;font-size:12.5px}
+.logs-btn .count{min-width:20px;padding:0 6px;border-radius:999px;font-size:11.5px;line-height:19px;text-align:center;background:var(--accent-soft);color:var(--accent);font-weight:700}
+.user-chip{display:flex;align-items:center;gap:10px;padding:4px 6px 4px 4px;border-radius:999px;background:var(--field);border:1px solid var(--border)}
+.avatar{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;font-weight:800;font-size:12.5px;background:var(--k-navy);color:var(--bg)}
+.user-chip .who{line-height:1.2}.user-chip .who b{display:block;font-size:12.5px}.user-chip .who small{color:var(--muted);font-size:11.5px}
+.icon-btn{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:0;background:transparent;color:var(--muted);transition:background .18s,color .18s}
+.icon-btn:hover{background:var(--accent-soft);color:var(--text)}.icon-btn svg{width:16px;height:16px}
+
+.body{display:flex;flex:1;min-height:0}
+.stage{position:relative;flex:1;min-width:0;display:flex;flex-direction:column}
+.content{flex:1;min-height:0;overflow-y:auto;padding:22px 28px 120px;scroll-behavior:smooth}
+.wrap{max-width:1260px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.view{display:flex;flex-direction:column;gap:16px}
+.view-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.view-head h1{font-size:26px;font-weight:800;letter-spacing:-.025em;line-height:1.15}
+.view-head p{color:var(--muted);margin-top:3px}
+
+/* ===== Dock inferior ===== */
+.dock{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:4px;padding:6px;border-radius:22px;background:var(--surface-hi);border:1px solid var(--border);box-shadow:var(--shadow-hi);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);z-index:30;max-width:calc(100% - 20px)}
+.dock a{position:relative;display:flex;align-items:center;gap:0;height:46px;padding:0 13px;border-radius:16px;color:var(--muted);font-weight:700;font-size:13.5px;white-space:nowrap;transition:background .2s var(--ease),color .2s var(--ease),transform .2s var(--ease)}
+.dock a span.lbl{max-width:0;overflow:hidden;opacity:0;transition:max-width .3s var(--ease),opacity .2s var(--ease),margin .3s var(--ease)}
+.dock a:hover{color:var(--text);background:var(--accent-soft);transform:translateY(-3px)}
+.dock a:hover span.lbl,.dock a[aria-current="page"] span.lbl{max-width:150px;opacity:1;margin-left:9px}
+.dock a[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+.dock .pip{position:absolute;top:5px;right:6px;min-width:18px;padding:0 5px;border-radius:999px;font-size:11px;line-height:17px;text-align:center;font-weight:800;background:var(--crit);color:#fff}
+
+/* ===== Cajón de logs ===== */
+.drawer{width:0;overflow:hidden;flex:none;background:var(--term-bg);border-left:1px solid var(--border-hi);transition:width .32s var(--ease)}
+.body.logs-open .drawer{width:var(--drawer-w)}
+.drawer-in{width:var(--drawer-w);height:100%;display:flex;flex-direction:column}
+.drawer-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(148,163,184,.14)}
+.drawer-head strong{font-size:13px;color:#e8ebf7;flex:1}
+.drawer-head .btn{background:transparent;color:#aab2cf;border-color:rgba(148,163,184,.22);padding:4px 11px;font-size:12.5px}
+.drawer-head .btn:hover{color:#fff;border-color:var(--accent)}
+.drawer-status{padding:8px 14px;border-bottom:1px solid rgba(148,163,184,.1)}
+.drawer-status .status{background:rgba(255,255,255,.04);border-color:rgba(148,163,184,.16);padding:3px 10px;font-size:12px}
+.log-body{flex:1;min-height:0;overflow-y:auto;padding:10px 14px 16px;font-family:var(--font-mono);font-size:12px;line-height:1.65;color:var(--term-text);scroll-behavior:smooth}
+.log-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px}
+.log-line .t{color:#5d6580}.log-line .m{font-weight:600}
+.m.GET{color:#60a5fa}.m.POST{color:#c4b5fd}.m.PATCH,.m.PUT{color:#fbbf24}.m.DELETE{color:#f87171}
+.log-line .p{color:#e8ebf7;word-break:break-all}.log-line .s{font-weight:600}
+.s.s2{color:#4ade80}.s.s4{color:#fbbf24}.s.s5{color:#f87171}
+.log-line .ms{color:#5d6580}.log-line .tag{color:#fbbf24}
+.log-json{margin:2px 0 10px 4px;padding:0 0 0 10px;border-left:2px solid rgba(226,177,60,.5);color:#8d95b0;white-space:pre-wrap;word-break:break-word;font:inherit}
+.log-sys{color:#7b84a3;margin-bottom:4px}.log-sys b{color:#e2b13c;font-weight:500}.log-sys.err{color:#f87171}
+.caret::after{content:"▍";color:var(--accent);animation:blink 1s steps(2) infinite;margin-left:4px}
+@keyframes blink{50%{opacity:0}}
+
+/* ===== Tarjetas y formularios ===== */
+.card{background:var(--surface);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--shadow);padding:20px;transition:transform .22s var(--ease),box-shadow .22s var(--ease),border-color .22s var(--ease),background .22s var(--ease)}
+.card.lift:hover{transform:translateY(-3px);box-shadow:var(--shadow-hi);border-color:var(--border-hi);background:var(--surface-hi)}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.card-title{font-size:15.5px;font-weight:700;letter-spacing:-.01em}.card-desc{font-size:13px;color:var(--muted);margin-top:2px}
+.form-grid{display:grid;gap:14px}.form-grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field label,.field .lbl-t{font-size:13px;font-weight:600}.field .hint{font-size:12px;color:var(--muted)}
+.input{width:100%;padding:9px 12px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--field);transition:border-color .18s,box-shadow .18s}
+.input::placeholder{color:var(--faint)}.input:hover{border-color:var(--border-hi)}
+.input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.input[aria-invalid="true"]{border-color:var(--crit);box-shadow:0 0 0 4px var(--crit-bg)}
+textarea.input{resize:vertical;min-height:110px;font-family:var(--font-mono);font-size:12.5px;line-height:1.5}
+select.input{appearance:none;padding-right:36px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238d95b0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+select.input option{color:#0f172a;background:#fff}
+.err{font-size:12.5px;color:var(--crit)}.err:empty{display:none}
+
+.badge{display:inline-flex;align-items:center;gap:7px;padding:3px 11px 3px 9px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.crit{color:var(--crit);background:var(--crit-bg)}.badge.high{color:var(--high);background:var(--high-bg)}.badge.mid{color:var(--mid);background:var(--mid-bg)}.badge.ok{color:var(--ok);background:var(--ok-bg)}
+.badge.pend{color:var(--accent);background:var(--accent-soft)}
+
+.table-wrap{overflow-x:auto;margin:0 -8px;padding:0 8px}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th{text-align:left;font-size:12.5px;font-weight:600;color:var(--muted);padding:0 12px 10px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr{transition:background .15s}tbody tr:hover{background:var(--accent-soft)}tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.cell-main{font-weight:600}.cell-sub{font-size:12.5px;color:var(--muted)}
+.rank{width:28px;font-weight:700;color:var(--faint)}
+.meter{display:flex;align-items:center;gap:10px;min-width:130px}
+.meter-track{flex:1;height:6px;border-radius:999px;background:var(--grid);overflow:hidden}.meter-fill{height:100%;border-radius:999px}
+.meter-val{width:38px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.empty{padding:28px 12px;text-align:center;color:var(--muted)}
+
+/* ===== Filtro jerárquico (Drill-down Coordinador) ===== */
+.drill-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 18px;border-left:4px solid var(--k-teal)}
+.drill-crumbs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:13px;font-weight:600}
+.crumb{background:none;border:0;padding:4px 8px;border-radius:8px;color:var(--muted);font-weight:700}
+.crumb:hover{background:var(--accent-soft);color:var(--text)}
+.crumb.active{color:var(--accent);background:var(--accent-soft)}
+.drill-controls{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.drill-controls .input{width:auto;min-width:190px;padding:7px 34px 7px 11px;font-size:13px}
+
+/* ===== Dashboard ===== */
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}.s7{grid-column:span 7}.s5{grid-column:span 5}.s6{grid-column:span 6}.s12{grid-column:span 12}
+.kpis2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kpi{position:relative;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:18px 20px 18px 24px;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:5px;border-radius:0 5px 5px 0;background:var(--stripe,var(--accent))}
+.kpi.k1{--stripe:var(--k-navy)}.kpi.k2{--stripe:var(--crit)}.kpi.k3{--stripe:var(--k-gold)}.kpi.k4{--stripe:var(--k-teal)}
+.kpi-label{color:var(--muted);font-weight:600;font-size:13px}
+.kpi-value{font-size:36px;font-weight:800;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums}
+.kpi-delta{font-size:12.5px;font-weight:700}.kpi-delta span{color:var(--muted);font-weight:500}
+.kpi-delta.good{color:var(--ok)}.kpi-delta.bad{color:var(--crit)}.kpi-delta.neutral{color:var(--muted);font-weight:500}
+.chart-box{position:relative}.chart-box svg{display:block;width:100%;height:auto;overflow:visible}
+.axis text{font-family:var(--font-ui);font-size:11px;fill:var(--muted)}.gridline{stroke:var(--grid);stroke-width:1}
+.line-path{fill:none;stroke:url(#lineGrad);stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.dot{fill:var(--bg-2);stroke:var(--accent2);stroke-width:2;transition:r .15s}.dot.on{r:6;fill:var(--accent2)}
+.hover-line{stroke:var(--accent2);stroke-width:1;stroke-dasharray:3 4;opacity:0;transition:opacity .15s}
+.chart-tip{position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-115%);padding:8px 12px;border-radius:10px;font-size:12.5px;white-space:nowrap;background:var(--surface-hi);border:1px solid var(--border-hi);box-shadow:var(--shadow-hi);transition:opacity .12s}
+.chart-tip span{color:var(--muted)}
+.donut{position:relative;width:200px;height:200px;margin:0 auto 14px}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.seg-arc{fill:none;stroke-width:20;transition:stroke-width .18s,opacity .18s;cursor:pointer}
+.donut.hovering .seg-arc{opacity:.3}.donut.hovering .seg-arc.on{opacity:1;stroke-width:25}
+.donut-center{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none}
+.donut-center b{font-size:30px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}.donut-center span{font-size:12px;color:var(--muted)}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.legend button{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:transparent;text-align:left;transition:background .15s,border-color .15s}
+.legend button:hover,.legend button.on{background:var(--accent-soft);border-color:var(--border-hi)}
+.legend i{width:10px;height:10px;border-radius:3px;flex:none}.legend .l-name{font-weight:600;flex:1;font-size:13px}.legend .l-val{font-weight:700;font-variant-numeric:tabular-nums;font-size:13px}
+
+/* Barras comparativas por Carrera / Grupo */
+.breakdown-list{display:flex;flex-direction:column;gap:10px}
+.bk-row{display:grid;grid-template-columns:minmax(160px,1.4fr) 2fr auto;align-items:center;gap:14px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--field);cursor:pointer;transition:border-color .18s,transform .15s,background .18s;text-align:left}
+.bk-row:hover{border-color:var(--border-hi);background:var(--accent-soft);transform:translateX(3px)}
+.bk-name{font-weight:700;font-size:13.5px;line-height:1.25}.bk-sub{font-size:12px;color:var(--muted)}
+.bk-bar-wrap{display:flex;flex-direction:column;gap:5px}
+.bk-track{height:9px;border-radius:999px;background:var(--grid);overflow:hidden;display:flex}
+.bk-fill-ok{background:var(--ok);height:100%}.bk-fill-risk{background:var(--crit);height:100%}
+.bk-stats{display:flex;gap:12px;font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* ===== Planilla tipo Excel (Asistencia) ===== */
+.sheet-controls{display:grid;grid-template-columns:1.2fr 1fr 1.2fr auto;gap:12px;align-items:end;margin-bottom:14px}
+.sheet-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-radius:14px;background:var(--field);border:1px solid var(--border);margin-bottom:14px}
+.sheet-actions.has-dirty{border-color:var(--accent);background:var(--accent-soft)}
+.excel-table{border:1px solid var(--border);border-radius:12px;overflow-x:auto;margin:0;padding:0}
+.excel-table table{min-width:680px}
+.excel-table th{background:var(--field);padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.excel-table td{padding:7px 12px;border-right:1px solid var(--border)}
+.excel-table td:last-child{border-right:0}
+.excel-table tr.is-dirty{background:rgba(226,177,60,.08)}
+.excel-table tr.is-dirty td:first-child{box-shadow:inset 4px 0 0 var(--accent)}
+.excel-row-num{width:42px;text-align:center;font-family:var(--font-mono);font-size:12px;color:var(--faint);background:var(--field)}
+
+/* Selector tipo celda de hoja de cálculo */
+.xl-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;min-width:255px}
+.xl-btn{padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--field);font-size:12.5px;font-weight:700;color:var(--muted);transition:all .14s;text-align:center}
+.xl-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.xl-btn[aria-pressed="true"][data-val="Presente"]{background:#16a34a;color:#fff;border-color:transparent;box-shadow:0 4px 12px -4px rgba(22,163,74,.6)}
+.xl-btn[aria-pressed="true"][data-val="Ausente"]{background:#dc2626;color:#fff;border-color:transparent;box-shadow:0 4px 12px -4px rgba(220,38,38,.6)}
+.xl-btn[aria-pressed="true"][data-val="Justificada"]{background:#d97706;color:#fff;border-color:transparent;box-shadow:0 4px 12px -4px rgba(217,119,6,.6)}
+.xl-btn[disabled]{opacity:.45;pointer-events:none}
+
+/* ===== Carga masiva CSV / Excel (Coordinador) ===== */
+.dropzone{border:2px dashed var(--border-hi);border-radius:14px;padding:18px;text-align:center;background:var(--field);cursor:pointer;transition:background .2s,border-color .2s}
+.dropzone:hover,.dropzone.dragover{background:var(--accent-soft);border-color:var(--accent)}
+.dropzone strong{display:block;font-size:14px;margin-bottom:3px}
+.dropzone span{font-size:12.5px;color:var(--muted)}
+.dropzone .fname{display:block;margin-top:6px;font-weight:700;color:var(--accent)}
+.subtabs{display:inline-grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:11px;background:var(--field);border:1px solid var(--border);margin-bottom:14px;width:100%}
+.subtabs button{padding:7px 10px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;transition:all .15s}
+.subtabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.preview-box{margin-top:12px;border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:240px;overflow-y:auto}
+.preview-box table{min-width:100%;font-size:12.5px}
+.preview-box th{padding:7px 10px;background:var(--field)}
+.preview-box td{padding:6px 10px}
+
+/* ===== Módulos generales ===== */
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{padding:12px 14px;border-radius:12px;background:var(--field);border:1px solid var(--border)}
+.stat b{display:block;font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.2;font-variant-numeric:tabular-nums}.stat span{font-size:12.5px;color:var(--muted)}
+.list-form{display:grid;grid-template-columns:minmax(0,1fr) 430px;gap:16px;align-items:start}
+.list-form.no-form{grid-template-columns:minmax(0,1fr)}
+.form-card{border-left:5px solid var(--k-gold);position:sticky;top:0;max-height:calc(100vh - 170px);overflow-y:auto}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.toolbar .input{max-width:260px}.chips{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.chip{padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--field);border:1px solid var(--border);color:var(--muted)}.chip b{color:var(--text)}
+.alert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.acard{display:flex;flex-direction:column;gap:12px;padding:18px;border-left:4px solid var(--tick)}.acard .btn{margin-top:auto}.acard .go{align-self:flex-start}
+.acard-top{display:flex;align-items:center;gap:12px}
+.acard .av{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:13px;background:var(--accent-soft);color:var(--accent);flex:none}
+.acard .nm{font-weight:700;line-height:1.25}.acard .top-r{margin-left:auto}
+.faltas{display:flex;align-items:baseline;gap:8px}.faltas b{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}.faltas span{color:var(--muted);font-size:13px}
+.ticks{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}.ticks i{height:6px;border-radius:3px;background:var(--grid)}.ticks i.on{background:var(--tick)}
+.acard-meta{font-size:12.5px;color:var(--muted)}.acard-meta b{color:var(--text);font-weight:600}
+.rbac{min-width:720px}
+.rbac th.role{text-align:center;padding-bottom:12px;border-bottom:3px solid var(--rc)}
+.rbac th.role strong{display:block;color:var(--text);font-size:13.5px}.rbac th.role small{font-weight:500;font-size:12px}
+.rbac td.cell{text-align:center}.perm-pair{display:inline-flex;gap:6px}
+.perm{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:600;border:1px solid var(--border);background:transparent;color:var(--faint);transition:background .18s,color .18s,border-color .18s,transform .12s}
+.perm svg{width:13px;height:13px}.perm:hover{border-color:var(--border-hi);transform:translateY(-1px)}
+.perm[aria-pressed="true"]{color:var(--ok);background:var(--ok-bg);border-color:transparent}
+.perm[data-kind="edit"][aria-pressed="true"]{color:var(--accent);background:var(--accent-soft)}
+.perm[disabled]{cursor:not-allowed;transform:none}.perm[disabled]:hover{border-color:var(--border)}
+.rbac-note{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-top:14px}.rbac-note svg{width:15px;height:15px}
+
+/* ===== Login ===== */
+.login{position:fixed;inset:0;z-index:100;display:grid;place-items:center;overflow-y:auto;padding:24px;background:radial-gradient(900px 520px at 100% -10%,var(--glow-a),transparent 62%),radial-gradient(800px 520px at -10% 110%,var(--glow-b),transparent 62%),var(--bg)}
+.login .bgmark{position:fixed;right:-6vmin;bottom:-8vmin;width:min(78vmin,760px);height:min(78vmin,760px);opacity:.10;pointer-events:none}
+.login-col{position:relative;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.login-brand{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.login-brand .kmark{width:84px;height:84px}
+.login-brand b{font-size:26px;font-weight:800;letter-spacing:.28em;color:var(--k-navy);padding-left:.28em}
+.login-brand small{color:var(--muted);font-size:13px}
+.login-card{width:100%;padding:28px}
+.login-card h1{font-size:21px;font-weight:800;letter-spacing:-.02em}.login-card .lead{color:var(--muted);margin:4px 0 20px}
+.form-error{padding:10px 12px;border-radius:var(--r-ctl);font-size:13px;background:var(--crit-bg);color:var(--crit);margin-bottom:16px}
+.link-btn{border:0;background:none;color:var(--accent);font-weight:700;padding:2px 4px;border-radius:6px;font-size:13px}.link-btn:hover{text-decoration:underline}
+.login-inst{display:flex;align-items:center;gap:14px;text-align:left;color:var(--muted);font-size:12.5px}.login-inst b{display:block;color:var(--text);font-size:13.5px}
+
+.toast-region{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+.toast{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:999px;font-weight:600;font-size:13.5px;background:var(--surface-hi);border:1px solid var(--border-hi);box-shadow:var(--shadow-hi);backdrop-filter:blur(14px);animation:tin .28s var(--ease) both}
+.toast svg{width:17px;height:17px;color:var(--ok)}.toast.warn{border-color:var(--high)}.toast.warn svg{color:var(--high)}.toast.leaving{animation:tout .22s var(--ease) both}
+@keyframes tin{from{opacity:0;transform:translateY(-8px) scale(.97)}}@keyframes tout{to{opacity:0;transform:translateY(-6px)}}
+
+/* ===== Ajustes y Roles ===== */
+.head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.idchip{display:inline-block;min-width:28px;padding:1px 8px;border-radius:7px;background:var(--accent-soft);color:var(--accent);font-family:var(--font-mono);font-size:12px;font-weight:600;text-align:center}
+.tag-pill{display:inline-block;padding:2px 8px;border-radius:6px;background:var(--field);border:1px solid var(--border);font-size:11.5px;font-weight:600;color:var(--muted)}
+.state-msg{padding:22px 12px;text-align:center;color:var(--muted)}.state-msg.err{color:var(--crit)}
+td.state-msg,td.empty{white-space:normal}
+.report-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:6px}
+.rep-section{margin-top:22px}.rep-section h3{font-size:14.5px;font-weight:700;margin-bottom:10px}
+.login-status{margin-top:-6px}
+.acard .msg{font-size:13px;color:var(--muted)}
+[data-lv="mid"]{--lvc:var(--mid)}[data-lv="high"]{--lvc:var(--high)}[data-lv="crit"]{--lvc:var(--crit)}[data-lv="ok"]{--lvc:var(--ok)}
+.tint{display:inline-block;padding:1px 9px;margin-left:-9px;border-radius:8px;font-weight:700}
+.tint[data-lv="mid"]{color:var(--mid);background:var(--mid-bg)}
+.tint[data-lv="high"]{color:var(--high);background:var(--high-bg)}
+.tint[data-lv="crit"]{color:var(--crit);background:var(--crit-bg)}
+tr[data-lv="mid"] td:first-child,tr[data-lv="high"] td:first-child,tr[data-lv="crit"] td:first-child{box-shadow:inset 3px 0 0 var(--lvc)}
+.chip-btn{padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:600;background:var(--field);border:1px solid var(--border);color:var(--muted);transition:background .15s,color .15s}
+.chip-btn:hover{color:var(--text)}
+.chip-btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+
+/* Campana */
+.bell-wrap{position:relative}
+.bell .count{min-width:20px;padding:0 6px;border-radius:999px;font-size:11.5px;line-height:19px;text-align:center;background:var(--crit);color:#fff;font-weight:700}
+.notif-panel{position:absolute;right:0;top:calc(100% + 10px);width:370px;max-height:70vh;display:flex;flex-direction:column;border-radius:16px;background:var(--bg-2);border:1px solid var(--border-hi);box-shadow:var(--shadow-hi);z-index:60;overflow:hidden}
+.notif-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px}
+.notif-list{list-style:none;margin:0;padding:6px;overflow-y:auto}
+.notif-item{display:flex;align-items:flex-start;gap:11px;width:100%;padding:10px;border:0;border-radius:10px;background:transparent;text-align:left;transition:background .15s}
+.notif-item:hover{background:var(--accent-soft)}
+.notif-item .dot{width:9px;height:9px;margin-top:6px;border-radius:50%;flex:none;background:var(--lvc)}
+.notif-item .txt{flex:1;line-height:1.4;font-size:13.5px}
+.notif-item small{display:block;color:var(--muted);font-size:12px}
+.notif-item .new{width:8px;height:8px;margin-top:7px;border-radius:50%;background:var(--accent);flex:none}
+.notif-empty{padding:24px 12px;text-align:center;color:var(--muted)}
+.notif-foot{display:block;text-align:center;padding:11px;border-top:1px solid var(--border);font-weight:700;font-size:13px;color:var(--accent)}
+.notif-foot:hover{background:var(--accent-soft)}
+.viewas{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);font-weight:600}
+.viewas .input{width:auto;padding:6px 30px 6px 10px;font-size:12.5px}
+
+/* Tabs y dialog */
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin-bottom:20px;border-radius:12px;background:var(--field);border:1px solid var(--border)}
+.tabs button{padding:8px 10px;border:0;border-radius:9px;background:transparent;color:var(--muted);font-weight:700;font-size:13px;transition:background .18s,color .18s}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.form-ok{padding:10px 12px;border-radius:var(--r-ctl);font-size:13px;background:var(--ok-bg);color:var(--ok);margin-bottom:16px}
+.login-note{font-size:12.5px;color:var(--muted);margin-top:14px;text-align:center}
+.lock-note{display:flex;align-items:center;gap:8px;grid-column:1/-1;padding:9px 12px;border-radius:var(--r-ctl);background:var(--high-bg);color:var(--high);font-size:12.5px;font-weight:600}
+dialog.dlg{max-width:420px;width:calc(100% - 32px);padding:22px;border:1px solid var(--border-hi);border-radius:var(--r-card);background:var(--bg-2);color:var(--text);box-shadow:var(--shadow-hi)}
+dialog.dlg::backdrop{background:rgba(2,4,12,.6)}
+dialog.dlg h2{font-size:17px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+dialog.dlg p{color:var(--muted);margin:0 0 18px}
+.dlg-actions{display:flex;justify-content:flex-end;gap:10px}
+.log-req{color:#8d95b0;margin:1px 0 1px 4px;word-break:break-all}
+
+@media (max-width:1240px){.inst-name{display:none}.user-chip .who{display:none}}
+@media (max-width:1100px){.s7,.s5,.s6{grid-column:span 12}.sheet-controls{grid-template-columns:1fr 1fr}.list-form{grid-template-columns:1fr}.form-card{position:static}}
+@media (max-width:900px){
+ .drawer{position:fixed;right:0;top:0;bottom:0;width:min(var(--drawer-w),100vw);transform:translateX(100%);transition:transform .3s var(--ease);z-index:60}
+ .body.logs-open .drawer{width:min(var(--drawer-w),100vw);transform:none}.drawer-in{width:100%}
+ .topbar{padding:10px 14px;gap:10px}.theme-switch button span{display:none}.status .st{display:none}.content{padding:18px 16px 112px}
+ .view-head h1{font-size:22px}.dock a{padding:0 11px}.dock a:hover span.lbl,.dock a[aria-current="page"] span.lbl{max-width:0;opacity:0;margin:0}
+ .viewas{display:none!important}.notif-panel{position:fixed;left:12px;right:12px;top:64px;width:auto}
+}
+@media (max-width:560px){.kpis2,.form-grid.two,.legend,.sheet-controls{grid-template-columns:1fr}.stats4{grid-template-columns:repeat(2,1fr)}.inst{display:none}.logs-btn .txt{display:none}.topbar #apiStatus,.brand-text small{display:none}.dock{padding:5px;gap:2px}.dock a{padding:0 9px;height:42px}.bk-row{grid-template-columns:1fr}}
+
+/* ===== Ojito de contraseña, cortes, carreras y docentes ===== */
+.pw-wrap{position:relative;display:block}.pw-wrap .input{padding-right:46px}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:var(--muted)}
+.pw-eye:hover{color:var(--text);background:var(--accent-soft)}.pw-eye svg{width:17px;height:17px}.pw-eye[disabled]{opacity:.4}
+.corte{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);font-weight:600}
+.corte .input{width:auto;padding:6px 30px 6px 10px;font-size:12.5px}
+.side-stack{display:grid;gap:16px;align-content:start}
+.cat-chips{display:flex;flex-wrap:wrap;gap:8px}
+.tag-list{display:flex;flex-wrap:wrap;gap:5px}
+dialog.dlg p.err{margin:0}
+.dock{overflow-x:auto;scrollbar-width:none}.dock::-webkit-scrollbar{display:none}
+</style></head>
+<body>
+
+<!-- Logo de Kairós -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="kmark" viewBox="0 0 100 100" fill="none" stroke-width="5.2">
+      <line x1="0" y1="2.75" x2="47.3" y2="2.75" style="stroke:var(--k-navy)"/>
+      <line x1="47.3" y1="2.75" x2="100" y2="2.75" style="stroke:var(--k-teal)"/>
+      <line x1="2.6" y1="0" x2="2.6" y2="100" style="stroke:var(--k-gold)"/>
+      <line x1="50" y1="5.5" x2="50" y2="94.8" style="stroke:var(--k-gold)"/>
+      <line x1="4.5" y1="3.5" x2="47.5" y2="50.8" style="stroke:var(--k-navy)"/>
+      <line x1="4.5" y1="94" x2="47.5" y2="50.8" style="stroke:var(--k-navy)"/>
+      <line x1="53" y1="45" x2="76" y2="26" style="stroke:var(--k-gold)"/>
+      <line x1="76" y1="26" x2="99" y2="3" style="stroke:var(--k-crim)"/>
+      <line x1="90.8" y1="12" x2="90.8" y2="92" style="stroke:var(--k-crim)"/>
+      <line x1="53" y1="51" x2="60" y2="58.8" style="stroke:var(--k-gold)"/>
+      <line x1="60" y1="58.8" x2="93.5" y2="96.5" style="stroke:var(--k-crim)"/>
+      <line x1="0" y1="97.4" x2="93" y2="97.4" style="stroke:var(--k-navy)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ================= ACCESO ================= -->
+<div class="login" id="login">
+  <svg class="bgmark" viewBox="0 0 100 100" aria-hidden="true"><use href="#kmark" width="100" height="100"/></svg>
+  <div class="login-col">
+    <div class="login-brand">
+      <svg class="kmark" viewBox="0 0 100 100" role="img" aria-label="Logo de Kairós"><use href="#kmark" width="100" height="100"/></svg>
+      <b>KAIRÓS</b>
+      <small>Prevención de la deserción estudiantil</small>
+    </div>
+    <div class="card login-card">
+      <div class="tabs" role="tablist" aria-label="Acceso">
+        <button type="button" role="tab" id="tabLogin" aria-selected="true" aria-controls="panelLogin">Iniciar sesión</button>
+        <button type="button" role="tab" id="tabSignup" aria-selected="false" aria-controls="panelSignup">Crear cuenta</button>
+      </div>
+
+      <div id="panelLogin" role="tabpanel" aria-labelledby="tabLogin">
+        <h1>Iniciar sesión</h1>
+        <p class="lead">Entra con tu correo institucional.</p>
+        <div class="form-ok" id="loginInfo" role="status" hidden></div>
+        <div class="form-error" id="loginError" role="alert" hidden></div>
+        <form id="formLogin" class="form-grid" novalidate>
+          <div class="field">
+            <label for="loginCorreo">Correo institucional</label>
+            <input class="input" type="email" id="loginCorreo" name="loginCorreo" placeholder="nombre@elpoli.edu.co" autocomplete="username" required>
+            <p class="err" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="loginPass">Contraseña</label>
+            <input class="input" type="password" id="loginPass" name="loginPass" placeholder="Tu contraseña" autocomplete="current-password" required>
+            <p class="err" role="alert"></p>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="loginSubmit">Iniciar sesión</button>
+        </form>
+      </div>
+
+      <div id="panelSignup" role="tabpanel" aria-labelledby="tabSignup" hidden>
+        <h1>Crear cuenta de docente</h1>
+        <p class="lead">Regístrate con tu correo institucional para tomar asistencia.</p>
+        <div class="form-error" id="signupError" role="alert" hidden></div>
+        <form id="formSignup" class="form-grid" novalidate>
+          <div class="field">
+            <label for="sgNombre">Nombre completo</label>
+            <input class="input" type="text" id="sgNombre" name="sgNombre" autocomplete="name" required>
+            <p class="err" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="sgCorreo">Correo institucional</label>
+            <input class="input" type="email" id="sgCorreo" name="sgCorreo" placeholder="nombre@elpoli.edu.co" autocomplete="email" required>
+            <p class="err" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="sgPass">Contraseña</label>
+            <input class="input" type="password" id="sgPass" name="sgPass" autocomplete="new-password" required>
+            <span class="hint">Mínimo 6 caracteres</span>
+            <p class="err" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="sgPass2">Repite la contraseña</label>
+            <input class="input" type="password" id="sgPass2" name="sgPass2" autocomplete="new-password" required>
+            <p class="err" role="alert"></p>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="signupSubmit">Crear cuenta</button>
+        </form>
+        <p class="login-note">Las cuentas de coordinador las autoriza el equipo de desarrollo.</p>
+      </div>
+    </div>
+    <span class="status login-status" id="loginStatus" data-state="idle"><i></i><span class="st">Comprobando el backend</span></span>
+    <div class="login-inst">
+      <img class="crest" style="--s:.42" alt="Escudo del Politécnico Colombiano Jaime Isaza Cadavid">
+      <span><b>Politécnico Colombiano</b>Jaime Isaza Cadavid</span>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APLICACIÓN ================= -->
+<div class="app" id="app" hidden>
+  <header class="topbar">
+    <a class="brand" href="#/dashboard" aria-label="Kairós, ir al panel">
+      <svg class="kmark" viewBox="0 0 100 100" aria-hidden="true"><use href="#kmark" width="100" height="100"/></svg>
+      <span class="brand-text"><b>KAIRÓS</b></span>
+    </a>
+    <div class="inst">
+      <img class="crest" style="--s:.25" alt="Escudo del Politécnico Colombiano Jaime Isaza Cadavid">
+      <span class="inst-name">Politécnico Colombiano<small>Jaime Isaza Cadavid</small></span>
+    </div>
+
+    <div class="top-actions">
+      <div class="theme-switch" role="radiogroup" aria-label="Tema de la interfaz">
+        <button type="button" role="radio" data-theme-set="light" aria-checked="false"><svg class="ico" data-icon="sun" viewBox="0 0 24 24"></svg><span>Claro</span></button>
+        <button type="button" role="radio" data-theme-set="dark" aria-checked="true"><svg class="ico" data-icon="moon" viewBox="0 0 24 24"></svg><span>Oscuro</span></button>
+      </div>
+      <span class="status" id="apiStatus" data-state="idle"><i></i><span class="st">Comprobando la API</span></span>
+      <label class="viewas" id="viewAsWrap" hidden><span>Ver como</span>
+        <select class="input" id="viewAs"><option value="">Mi rol</option><option value="coordinador">Coordinador</option><option value="docente">Docente</option></select>
+      </label>
+
+      <div class="bell-wrap">
+        <button class="btn btn-sm bell" type="button" id="bellBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="notifPanel" aria-label="Notificaciones"><svg class="ico" data-icon="alertas" viewBox="0 0 24 24"></svg><span class="count" id="bellCount" hidden>0</span></button>
+        <div class="notif-panel" id="notifPanel" role="dialog" aria-label="Notificaciones" hidden>
+          <div class="notif-head"><strong>Notificaciones</strong><button class="link-btn" type="button" id="markAllRead">Marcar todas como leídas</button></div>
+          <ul class="notif-list" id="notifList"></ul>
+          <a class="notif-foot" href="#/alertas" id="notifAll">Ver todas las alertas</a>
+        </div>
+      </div>
+
+      <button class="btn btn-sm logs-btn" type="button" id="logsBtn" aria-expanded="false" aria-controls="drawer" hidden><svg class="ico" data-icon="terminal" viewBox="0 0 24 24"></svg><span class="txt">Logs</span><span class="count" id="logCount">0</span></button>
+      <div class="user-chip">
+        <div class="avatar" id="uAvatar" aria-hidden="true">?</div>
+        <div class="who"><b id="uName">Usuario</b><small id="uRole"></small></div>
+        <button class="icon-btn" type="button" id="pwBtn" aria-label="Cambiar contraseña" title="Cambiar contraseña"><svg data-icon="key" viewBox="0 0 24 24"></svg></button>
+        <button class="icon-btn" type="button" id="logoutBtn" aria-label="Cerrar sesión" title="Cerrar sesión"><svg data-icon="logout" viewBox="0 0 24 24"></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="body" id="body">
+    <div class="stage">
+      <main class="content" id="content" tabindex="-1">
+        <div class="wrap">
+          <div class="view-head">
+            <div><h1 id="vTitle">Panel general</h1><p id="vSub"></p></div>
+            <div class="head-actions"><label class="corte" id="periodoWrap"><span>Corte</span><select class="input" id="periodoSel" aria-label="Corte académico"></select></label><button class="btn btn-sm" type="button" id="refreshAll"><svg class="ico" data-icon="refresh" viewBox="0 0 24 24" style="width:15px;height:15px"></svg>Actualizar datos</button></div>
+          </div>
+
+          <!-- ================= DASHBOARD (Con profundización Carrera -> Grupo) ================= -->
+          <section class="view" id="view-dashboard" hidden>
+            <!-- Barra de profundización jerárquica -->
+            <div class="card drill-bar" id="drillBar">
+              <nav class="drill-crumbs" aria-label="Nivel de visualización">
+                <button type="button" class="crumb active" id="crumbAll">Institución completa</button>
+                <span id="crumbSep1" hidden>/</span>
+                <button type="button" class="crumb" id="crumbCarrera" hidden></button>
+                <span id="crumbSep2" hidden>/</span>
+                <span class="crumb active" id="crumbGrupo" hidden></span>
+              </nav>
+              <div class="drill-controls">
+                <select class="input" id="dashCarrera" aria-label="Filtrar por carrera">
+                  <option value="">Todas las carreras</option>
+                </select>
+                <select class="input" id="dashGrupo" aria-label="Filtrar por grupo">
+                  <option value="">Todos los grupos</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="g12">
+              <div class="s7 kpis2">
+                <article class="card lift kpi k1"><div class="kpi-label">Estudiantes en alcance</div><div class="kpi-value" id="kTotal">—</div><div class="kpi-delta neutral" id="kTotalSub"> </div></article>
+                <article class="card lift kpi k2"><div class="kpi-label">Alertas críticas</div><div class="kpi-value" id="kCrit">—</div><div class="kpi-delta neutral" id="kCritSub"> </div></article>
+                <article class="card lift kpi k3"><div class="kpi-label">Índice de riesgo</div><div class="kpi-value" id="kRiesgo">—</div><div class="kpi-delta neutral" id="kRiesgoSub"> </div></article>
+                <article class="card lift kpi k4"><div class="kpi-label">Asistencia promedio</div><div class="kpi-value" id="kAsis">—</div><div class="kpi-delta neutral" id="kAsisSub"> </div></article>
+              </div>
+              <article class="card s5">
+                <div class="card-head"><div><h2 class="card-title">Distribución por nivel de riesgo</h2><p class="card-desc" id="donutDesc"></p></div></div>
+                <div class="donut" id="donut"></div>
+                <div class="legend" id="legend"></div>
+              </article>
+            </div>
+
+            <!-- Resumen comparativo interactivo por Carrera o Grupo -->
+            <article class="card" id="breakdownCard">
+              <div class="card-head">
+                <div>
+                  <h2 class="card-title" id="bkTitle">Desempeño por carrera</h2>
+                  <p class="card-desc" id="bkDesc">Haz clic sobre una carrera para profundizar en sus grupos.</p>
+                </div>
+                <span class="chip">Verde: Asistencia · Rojo: En riesgo</span>
+              </div>
+              <div class="breakdown-list" id="breakdownList"></div>
+            </article>
+
+            <div class="g12">
+              <article class="card s5">
+                <div class="card-head"><div><h2 class="card-title">Inasistencias por semana</h2><p class="card-desc">Ausencias registradas en el filtro actual</p></div></div>
+                <div class="chart-box" id="lineBox"></div>
+              </article>
+              <article class="card s7">
+                <div class="card-head"><div><h2 class="card-title">Estudiantes con mayor riesgo</h2><p class="card-desc">Ordenados de mayor a menor número de fallas</p></div>
+                  <div class="head-actions"><a class="btn btn-sm" href="#/alertas">Ver alertas</a></div>
+                </div>
+                <div class="table-wrap"><table>
+                  <thead><tr><th>#</th><th>Estudiante</th><th>Carrera / Grupo</th><th>Faltas</th><th>Nivel</th></tr></thead>
+                  <tbody id="rankBody"></tbody>
+                </table></div>
+              </article>
+            </div>
+
+            <article class="card" id="coordCard" hidden>
+              <div class="card-head"><div><h2 class="card-title">Actividad de registro por docente</h2><p class="card-desc">Consolidado de asistencias tomadas por cada profesor</p></div></div>
+              <div class="table-wrap"><table>
+                <thead><tr><th>Docente</th><th class="num">Registros</th><th class="num">Ausencias</th><th>Último registro</th></tr></thead>
+                <tbody id="docBody"></tbody>
+              </table></div>
+            </article>
+          </section>
+
+          <!-- ================= ASISTENCIA (Planilla tipo Excel en lote) ================= -->
+          <section class="view" id="view-asistencia" hidden>
+            <article class="card">
+              <div class="card-head">
+                <div>
+                  <h2 class="card-title">Planilla de asistencia tipo Excel</h2>
+                  <p class="card-desc" id="planCount">Selecciona la carrera y el grupo, marca los estados y guarda todos los cambios al final.</p>
+                </div>
+                <div class="head-actions">
+                  <button class="chip-btn" type="button" id="planOnly" aria-pressed="false">Solo en alerta</button>
+                  <button class="btn btn-sm" type="button" id="markAllPresent">Marcar todos Presentes</button>
+                </div>
+              </div>
+
+              <p class="lock-note" id="planLock" hidden style="margin-bottom:14px"></p>
+
+              <!-- Filtros de la planilla -->
+              <div class="sheet-controls">
+                <div class="field">
+                  <label for="planCarrera">Carrera</label>
+                  <select class="input" id="planCarrera"><option value="">Todas las carreras</option></select>
+                </div>
+                <div class="field">
+                  <label for="planGrupo">Grupo</label>
+                  <select class="input" id="planGrupo"><option value="">Todos los grupos</option></select>
+                </div>
+                <div class="field">
+                  <label for="planMateriaSelect">Asignatura (opcional)</label>
+                  <select class="input" id="planMateriaSelect"></select>
+                </div>
+                <div class="field">
+                  <label for="planSearch">Buscar estudiante</label>
+                  <input class="input" type="search" id="planSearch" placeholder="Nombre o documento...">
+                </div>
+              </div>
+
+              <!-- Barra de guardado en lote -->
+              <div class="sheet-actions" id="dirtyBar">
+                <div>
+                  <strong id="dirtyStatus">Sin cambios pendientes por guardar</strong>
+                  <div class="cell-sub" id="dirtyHint">Haz clic en Presente, Ausente o Justificada en cada fila.</div>
+                </div>
+                <div class="head-actions">
+                  <button class="btn btn-sm" type="button" id="discardChanges" hidden>Descartar cambios</button>
+                  <button class="btn btn-primary" type="button" id="saveBatchBtn" disabled>Guardar cambios</button>
+                </div>
+              </div>
+
+              <p class="err" id="planError" role="alert" style="margin-bottom:10px"></p>
+
+              <!-- Tabla estilo hoja de cálculo -->
+              <div class="table-wrap excel-table"><table>
+                <thead>
+                  <tr>
+                    <th class="excel-row-num">#</th>
+                    <th>Estudiante</th>
+                    <th>Carrera · Grupo</th>
+                    <th>Faltas acum.</th>
+                    <th>Estado registrado hoy</th>
+                    <th id="thMarcar">Marcar asistencia (Clic rápido)</th>
+                  </tr>
+                </thead>
+                <tbody id="planBody"></tbody>
+              </table></div>
+            </article>
+
+            <article class="card">
+              <div class="card-head">
+                <div><h2 class="card-title">Historial reciente de asistencias</h2><p class="card-desc">Registros confirmados en el servidor.</p></div>
+                <button class="btn btn-sm" type="button" id="refreshAsis"><svg class="ico" data-icon="refresh" viewBox="0 0 24 24" style="width:15px;height:15px"></svg>Actualizar historial</button>
+              </div>
+              <div class="stats4">
+                <div class="stat"><b id="stTotal">0</b><span>Registros</span></div>
+                <div class="stat"><b id="stPres">0</b><span>Presentes</span></div>
+                <div class="stat"><b id="stAus">0</b><span>Ausentes</span></div>
+                <div class="stat"><b id="stJust">0</b><span>Justificadas</span></div>
+              </div>
+              <div class="table-wrap"><table>
+                <thead id="asisHead"></thead>
+                <tbody id="asisBody"></tbody>
+              </table></div>
+            </article>
+          </section>
+
+          <!-- ================= MATERIAS ================= -->
+          <section class="view" id="view-materias" hidden>
+            <div class="list-form">
+              <article class="card">
+                <div class="card-head"><div><h2 class="card-title">Materias registradas</h2><p class="card-desc" id="matCount"></p></div>
+                  <button class="btn btn-sm" type="button" id="refreshMat"><svg class="ico" data-icon="refresh" viewBox="0 0 24 24" style="width:15px;height:15px"></svg>Consultar lista</button></div>
+                <div class="table-wrap"><table>
+                  <thead><tr><th>ID</th><th>Código</th><th>Nombre</th><th class="num">Créditos</th></tr></thead>
+                  <tbody id="matBody"></tbody>
+                </table></div>
+              </article>
+              <article class="card form-card" data-lock="materias">
+                <div class="card-head"><div><h2 class="card-title">Nueva materia</h2><p class="card-desc">Regístrala para asociarla a los grupos.</p></div></div>
+                <form id="formMateria" class="form-grid" novalidate>
+                  <div class="form-error" role="alert" hidden></div>
+                  <div class="field">
+                    <label for="matNombre">Nombre de la materia</label>
+                    <input class="input" type="text" id="matNombre" name="matNombre" placeholder="Ej: Cálculo Integral" autocomplete="off" required>
+                    <p class="err" role="alert"></p>
+                  </div>
+                  <div class="form-grid two">
+                    <div class="field">
+                      <label for="matCodigo">Código</label>
+                      <input class="input" type="text" id="matCodigo" name="matCodigo" placeholder="Ej: CALC-101" autocomplete="off" required>
+                      <p class="err" role="alert"></p>
+                    </div>
+                    <div class="field">
+                      <label for="matCreditos">Créditos</label>
+                      <input class="input" type="text" id="matCreditos" name="matCreditos" inputmode="numeric" value="3" placeholder="Ej: 3" required>
+                      <p class="err" role="alert"></p>
+                    </div>
+                  </div>
+                  <button class="btn btn-primary" type="submit">Guardar materia</button>
+                </form>
+              </article>
+            </div>
+          </section>
+
+          <!-- ================= ESTUDIANTES (Carga masiva por Coordinador + Individual) ================= -->
+          <section class="view" id="view-estudiantes" hidden>
+            <div class="list-form">
+              <article class="card">
+                <div class="card-head">
+                  <div><h2 class="card-title">Estudiantes por carrera y grupo</h2><p class="card-desc" id="estCount"></p></div>
+                  <button class="btn btn-sm" type="button" id="refreshEst"><svg class="ico" data-icon="refresh" viewBox="0 0 24 24" style="width:15px;height:15px"></svg>Consultar lista</button>
+                </div>
+                <div class="toolbar" style="margin-bottom:12px">
+                  <input class="input" type="search" id="estSearch" placeholder="Buscar nombre, documento o ID">
+                  <select class="input" id="estFilterCarrera" style="max-width:200px"><option value="">Todas las carreras</option></select>
+                  <select class="input" id="estFilterGrupo" style="max-width:160px"><option value="">Todos los grupos</option></select>
+                </div>
+                <div class="table-wrap"><table>
+                  <thead><tr><th>ID</th><th>Estudiante</th><th>Documento</th><th>Carrera</th><th>Grupo · Corte</th><th>Faltas</th></tr></thead>
+                  <tbody id="estBody"></tbody>
+                </table></div>
+              </article>
+
+              <article class="card form-card" data-lock="estudiantes">
+                <div class="subtabs" role="tablist">
+                  <button type="button" role="tab" id="tabBulkEst" aria-selected="true">Carga masiva (Excel/CSV)</button>
+                  <button type="button" role="tab" id="tabSingleEst" aria-selected="false">Registro individual</button>
+                </div>
+
+                <!-- Panel Carga Masiva (Coordinador) -->
+                <div id="panelBulkEst">
+                  <div class="card-head" style="margin-bottom:12px">
+                    <div>
+                      <h2 class="card-title">Subir listado de grupo</h2>
+                      <p class="card-desc">Asigna estudiantes a una carrera y grupo para que los docentes tomen asistencia.</p>
+                    </div>
+                    <button type="button" class="link-btn" id="downloadCsvTpl">Descargar plantilla CSV</button>
+                  </div>
+
+                  <div class="form-grid">
+                    <div class="form-grid two">
+                      <div class="field">
+                        <label for="bulkCarrera">Carrera por defecto</label>
+                        <input class="input" type="text" id="bulkCarrera" list="carrerasList" placeholder="Ej: Ingeniería Informática" value="Ingeniería Informática">
+                      </div>
+                      <div class="field">
+                        <label for="bulkGrupo">Grupo por defecto</label>
+                        <input class="input" type="text" id="bulkGrupo" list="gruposList" placeholder="Ej: G-01" value="G-01">
+                      </div>
+                    </div>
+
+                    <div class="field">
+                      <label for="bulkPeriodo">Corte (periodo)</label>
+                      <input class="input" type="text" id="bulkPeriodo" list="periodosList" placeholder="Ej: 2026-2">
+                      <span class="hint">Formato año-semestre: 2026-1 o 2026-2</span>
+                    </div>
+
+                    <div class="dropzone" id="csvDropzone" tabindex="0" role="button" aria-label="Seleccionar archivo Excel o CSV">
+                      <input type="file" id="csvFileInput" accept=".xlsx,.csv,.txt,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+                      <strong>Haz clic para subir un Excel (.xlsx) o CSV, o arrástralo aquí</strong>
+                      <span>Columnas: Nombre, Documento, Correo, Carrera (opc.), Grupo (opc.), Corte (opc.)</span>
+                      <span class="fname" id="csvFileName" hidden></span>
+                    </div>
+
+                    <div class="field">
+                      <label for="bulkPaste">O pega filas directamente desde Excel</label>
+                      <textarea class="input" id="bulkPaste" placeholder="Carlos Gómez	100123456	carlos@elpoli.edu.co	Ingeniería Informática	G-01
+Laura Ríos	100987654	laura@elpoli.edu.co	Ingeniería Informática	G-01"></textarea>
+                      <span class="hint">Acepta columnas separadas por tabulación (Excel) o punto y coma / coma (CSV). Si subes un .xlsx se lee la primera hoja.</span>
+                    </div>
+
+                    <div id="bulkPreviewWrap" hidden>
+                      <div style="display:flex;justify-content:space-between;align-items:center">
+                        <strong style="font-size:13px" id="bulkPreviewTitle">0 estudiantes listos</strong>
+                        <button type="button" class="link-btn" id="clearBulkBtn">Limpiar</button>
+                      </div>
+                      <div class="preview-box">
+                        <table>
+                          <thead><tr><th>Nombre</th><th>Documento</th><th>Carrera</th><th>Grupo</th><th>Corte</th></tr></thead>
+                          <tbody id="bulkPreviewBody"></tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div class="form-error" id="bulkError" role="alert" hidden></div>
+                    <button class="btn btn-primary btn-block" type="button" id="uploadBulkBtn" disabled>Cargar listado al grupo</button>
+                  </div>
+                </div>
+
+                <!-- Panel Individual -->
+                <div id="panelSingleEst" hidden>
+                  <div class="card-head" style="margin-bottom:12px"><div><h2 class="card-title">Nuevo estudiante</h2><p class="card-desc">Regístralo manualmente y asígnalo a su grupo.</p></div></div>
+                  <form id="formEstudiante" class="form-grid" novalidate>
+                    <div class="form-error" role="alert" hidden></div>
+                    <div class="field">
+                      <label for="estNombre">Nombre completo</label>
+                      <input class="input" type="text" id="estNombre" name="estNombre" placeholder="Ej: Carlos Gómez" autocomplete="off" required>
+                      <p class="err" role="alert"></p>
+                    </div>
+                    <div class="form-grid two">
+                      <div class="field">
+                        <label for="estDocumento">Documento</label>
+                        <input class="input" type="text" id="estDocumento" name="estDocumento" inputmode="numeric" placeholder="100123456" autocomplete="off" required>
+                        <p class="err" role="alert"></p>
+                      </div>
+                      <div class="field">
+                        <label for="estMatricula">ID Matrícula</label>
+                        <input class="input" type="number" id="estMatricula" name="estMatricula" value="1" min="1" required>
+                        <p class="err" role="alert"></p>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="estCorreo">Correo institucional</label>
+                      <input class="input" type="email" id="estCorreo" name="estCorreo" placeholder="estudiante@elpoli.edu.co" autocomplete="off" required>
+                      <p class="err" role="alert"></p>
+                    </div>
+                    <div class="form-grid two">
+                      <div class="field">
+                        <label for="estCarrera">Carrera</label>
+                        <input class="input" type="text" id="estCarrera" list="carrerasList" placeholder="Ej: Ingeniería Informática" required>
+                        <p class="err" role="alert"></p>
+                      </div>
+                      <div class="field">
+                        <label for="estGrupo">Grupo</label>
+                        <input class="input" type="text" id="estGrupo" list="gruposList" placeholder="Ej: G-01" required>
+                        <p class="err" role="alert"></p>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label for="estPeriodo">Corte (periodo)</label>
+                      <input class="input" type="text" id="estPeriodo" list="periodosList" placeholder="Ej: 2026-2 (vacío = corte actual)">
+                      <p class="err" role="alert"></p>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Registrar estudiante</button>
+                  </form>
+                </div>
+                <datalist id="carrerasList"></datalist>
+                <datalist id="periodosList"></datalist>
+                <datalist id="gruposList"></datalist>
+              </article>
+            </div>
+          </section>
+
+          <!-- ================= CARRERAS Y CORTES ================= -->
+          <section class="view" id="view-carreras" hidden>
+            <div class="list-form">
+              <article class="card">
+                <div class="card-head"><div><h2 class="card-title">Carreras y grupos</h2><p class="card-desc" id="carCount"></p></div></div>
+                <div class="table-wrap"><table>
+                  <thead><tr><th>Carrera</th><th>Grupos · corte</th><th class="num">Estudiantes</th></tr></thead>
+                  <tbody id="carBody"></tbody>
+                </table></div>
+                <div class="card-head" style="margin-top:24px"><div><h2 class="card-title">Cortes académicos</h2><p class="card-desc">Las faltas se cuentan por corte. Por defecto, enero a junio es el corte 1 y julio a diciembre el corte 2.</p></div></div>
+                <div class="cat-chips" id="perChips"></div>
+              </article>
+              <div class="side-stack form-card" style="border-left:0" data-lock="carreras">
+                <article class="card">
+                  <div class="card-head"><div><h2 class="card-title">Nueva carrera</h2></div></div>
+                  <form id="formCarrera" class="form-grid" novalidate>
+                    <div class="field"><label for="carNombre">Nombre de la carrera</label><input class="input" type="text" id="carNombre" autocomplete="off" placeholder="Ej: Ingeniería Informática"><p class="err" role="alert"></p></div>
+                    <button class="btn btn-primary" type="submit">Agregar carrera</button>
+                  </form>
+                </article>
+                <article class="card">
+                  <div class="card-head"><div><h2 class="card-title">Nuevo grupo</h2><p class="card-desc">Cada grupo pertenece a una carrera y a un corte.</p></div></div>
+                  <form id="formGrupo" class="form-grid" novalidate>
+                    <div class="field"><label for="grpCarrera">Carrera</label><select class="input" id="grpCarrera"></select><p class="err" role="alert"></p></div>
+                    <div class="form-grid two">
+                      <div class="field"><label for="grpNombre">Grupo</label><input class="input" type="text" id="grpNombre" autocomplete="off" placeholder="Ej: G-02"><p class="err" role="alert"></p></div>
+                      <div class="field"><label for="grpPeriodo">Corte</label><input class="input" type="text" id="grpPeriodo" list="periodosList" autocomplete="off" placeholder="2026-2"><p class="err" role="alert"></p></div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Agregar grupo</button>
+                  </form>
+                </article>
+                <article class="card">
+                  <div class="card-head"><div><h2 class="card-title">Nuevo corte</h2></div></div>
+                  <form id="formPeriodo" class="form-grid" novalidate>
+                    <div class="field"><label for="perNombre">Corte (año-semestre)</label><input class="input" type="text" id="perNombre" autocomplete="off" placeholder="Ej: 2027-1"><p class="err" role="alert"></p></div>
+                    <button class="btn btn-primary" type="submit">Agregar corte</button>
+                  </form>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <!-- ================= DOCENTES (listado y cuentas automáticas) ================= -->
+          <section class="view" id="view-docentes" hidden>
+            <div class="list-form">
+              <article class="card">
+                <div class="card-head"><div><h2 class="card-title">Docentes creados</h2><p class="card-desc" id="docCount"></p></div></div>
+                <div class="table-wrap"><table>
+                  <thead><tr><th>Docente</th><th>Correo</th><th>Grupos</th><th>Creado</th></tr></thead>
+                  <tbody id="docListBody"></tbody>
+                </table></div>
+                <p class="rbac-note"><svg class="ico" data-icon="key" viewBox="0 0 24 24"></svg>La contraseña inicial de cada docente es su ID. Puede cambiarla con el botón de la llave (arriba a la derecha).</p>
+              </article>
+              <article class="card form-card" data-lock="docentes">
+                <div class="card-head" style="margin-bottom:12px">
+                  <div><h2 class="card-title">Subir listado de docentes</h2><p class="card-desc">Se crea la cuenta de cada uno. Entra con su correo y su ID como contraseña.</p></div>
+                  <button type="button" class="link-btn" id="downloadDocTpl">Descargar plantilla CSV</button>
+                </div>
+                <div class="form-grid">
+                  <div class="dropzone" id="docDropzone" tabindex="0" role="button" aria-label="Seleccionar archivo Excel o CSV de docentes">
+                    <input type="file" id="docFileInput" accept=".xlsx,.csv,.txt,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+                    <strong>Haz clic para subir un Excel (.xlsx) o CSV, o arrástralo aquí</strong>
+                    <span>Columnas: Nombre, ID, Correo, Grupo(s) separados por |</span>
+                  </div>
+                  <div class="field">
+                    <label for="docPaste">O pega filas desde Excel</label>
+                    <textarea class="input" id="docPaste" placeholder="Laura Ríos;1037000111;laura@elpoli.edu.co;G-01|G-02"></textarea>
+                    <span class="hint">El ID debe tener de 6 a 20 letras o números, porque es la contraseña inicial.</span>
+                  </div>
+                  <div id="docPreviewWrap" hidden>
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <strong style="font-size:13px" id="docPreviewTitle"></strong>
+                      <button type="button" class="link-btn" id="clearDocBtn">Limpiar</button>
+                    </div>
+                    <div class="preview-box"><table>
+                      <thead><tr><th>Docente</th><th>ID</th><th>Correo</th><th>Grupos</th></tr></thead>
+                      <tbody id="docPreviewBody"></tbody>
+                    </table></div>
+                  </div>
+                  <div class="form-error" id="docError" role="alert" hidden></div>
+                  <button class="btn btn-primary btn-block" type="button" id="uploadDocBtn" disabled>Crear cuentas de docentes</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- ================= ALERTAS ================= -->
+          <section class="view" id="view-alertas" hidden>
+            <div class="toolbar">
+              <input class="input" type="search" id="alertSearch" placeholder="Buscar por nombre o ID" aria-label="Buscar alertas">
+              <select class="input" id="alertCarrera" style="max-width:210px"><option value="">Todas las carreras</option></select>
+              <select class="input" id="alertGrupo" style="max-width:160px"><option value="">Todos los grupos</option></select>
+              <button class="btn btn-sm" type="button" id="refreshAlerts"><svg class="ico" data-icon="refresh" viewBox="0 0 24 24" style="width:15px;height:15px"></svg>Actualizar</button>
+              <div class="chips"><span class="chip">Alertas <b id="chipTotal">0</b></span><span class="chip">Críticas <b id="chipCrit">0</b></span></div>
+            </div>
+            <div class="alert-grid" id="alertGrid"></div>
+          </section>
+
+          <!-- ================= REPORTES ================= -->
+          <section class="view" id="view-reportes" hidden>
+            <article class="card">
+              <div class="card-head">
+                <div><h2 class="card-title">Reporte consolidado</h2><p class="card-desc">Se genera en el servidor con los registros actuales.</p></div>
+                <button class="btn btn-primary btn-sm" type="button" id="genReport">Generar reporte completo</button>
+              </div>
+              <div id="reportOut"><p class="state-msg">Pulsa “Generar reporte completo” para ver los datos.</p></div>
+            </article>
+          </section>
+
+          <!-- ================= USUARIOS ================= -->
+          <section class="view" id="view-usuarios" hidden>
+            <div class="list-form">
+              <article class="card">
+                <div class="card-head"><div><h2 class="card-title">Creados en esta sesión</h2><p class="card-desc">Usuarios registrados durante la sesión actual.</p></div></div>
+                <div class="table-wrap"><table>
+                  <thead><tr><th>Hora</th><th>Nombre</th><th>Correo</th><th>Rol</th></tr></thead>
+                  <tbody id="userBody"></tbody>
+                </table></div>
+              </article>
+              <article class="card form-card" data-lock="usuarios">
+                <div class="card-head"><div><h2 class="card-title">Nuevo usuario con permiso</h2><p class="card-desc">Crea cuentas de coordinador o docente.</p></div></div>
+                <form id="formRegister" class="form-grid" novalidate>
+                  <div class="form-error" role="alert" hidden></div>
+                  <div class="field">
+                    <label for="regNombre">Nombre completo</label>
+                    <input class="input" type="text" id="regNombre" name="regNombre" autocomplete="off" required>
+                    <p class="err" role="alert"></p>
+                  </div>
+                  <div class="field">
+                    <label for="regCorreo">Correo electrónico</label>
+                    <input class="input" type="email" id="regCorreo" name="regCorreo" autocomplete="off" required>
+                    <p class="err" role="alert"></p>
+                  </div>
+                  <div class="field">
+                    <label for="regPass">Contraseña</label>
+                    <input class="input" type="password" id="regPass" name="regPass" autocomplete="new-password" required>
+                    <p class="err" role="alert"></p>
+                  </div>
+                  <div class="field">
+                    <label for="regRol">Rol</label>
+                    <select class="input" id="regRol" name="regRol">
+                      <option value="1">1 - Coordinador (Administrador)</option>
+                      <option value="2" selected>2 - Docente</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary" type="submit">Guardar usuario</button>
+                </form>
+              </article>
+            </div>
+          </section>
+
+          <!-- ================= RBAC ================= -->
+          <section class="view" id="view-permisos" hidden>
+            <article class="card">
+              <div class="card-head"><div><h2 class="card-title">Qué puede hacer cada rol</h2><p class="card-desc">Activa o desactiva “Ver” y “Editar” por módulo.</p></div></div>
+              <div class="table-wrap"><table class="rbac"><thead id="rbacHead"></thead><tbody id="rbacBody"></tbody></table></div>
+              <p class="rbac-note"><svg class="ico" data-icon="lock" viewBox="0 0 24 24"></svg>Los cambios se guardan en este navegador. SuperAdmin Creadora está bloqueado para preservar el acceso.</p>
+            </article>
+          </section>
+        </div>
+      </main>
+
+      <!-- Dock de navegación -->
+      <nav class="dock" aria-label="Módulos">
+        <a href="#/dashboard" data-route="dashboard" title="Panel"><svg class="ico" data-icon="dashboard" viewBox="0 0 24 24"></svg><span class="lbl">Panel</span></a>
+        <a href="#/asistencia" data-route="asistencia" title="Asistencia"><svg class="ico" data-icon="asistencia" viewBox="0 0 24 24"></svg><span class="lbl">Asistencia</span></a>
+        <a href="#/materias" data-route="materias" title="Materias"><svg class="ico" data-icon="materias" viewBox="0 0 24 24"></svg><span class="lbl">Materias</span></a>
+        <a href="#/estudiantes" data-route="estudiantes" title="Estudiantes"><svg class="ico" data-icon="estudiantes" viewBox="0 0 24 24"></svg><span class="lbl">Estudiantes</span></a>
+        <a href="#/carreras" data-route="carreras" title="Carreras y cortes"><svg class="ico" data-icon="carreras" viewBox="0 0 24 24"></svg><span class="lbl">Carreras</span></a>
+        <a href="#/docentes" data-route="docentes" title="Docentes"><svg class="ico" data-icon="docentes" viewBox="0 0 24 24"></svg><span class="lbl">Docentes</span></a>
+        <a href="#/alertas" data-route="alertas" title="Alertas tempranas"><svg class="ico" data-icon="alertas" viewBox="0 0 24 24"></svg><span class="lbl">Alertas</span><span class="pip" id="navAlertCount" hidden>0</span></a>
+        <a href="#/reportes" data-route="reportes" title="Reportes"><svg class="ico" data-icon="reportes" viewBox="0 0 24 24"></svg><span class="lbl">Reportes</span></a>
+        <a href="#/usuarios" data-route="usuarios" title="Registrar usuario"><svg class="ico" data-icon="usuarios" viewBox="0 0 24 24"></svg><span class="lbl">Usuarios</span></a>
+        <a href="#/permisos" data-route="permisos" title="Matriz de permisos"><svg class="ico" data-icon="permisos" viewBox="0 0 24 24"></svg><span class="lbl">Permisos</span></a>
+      </nav>
+    </div>
+
+    <!-- Terminal de logs API -->
+    <aside class="drawer" id="drawer" aria-label="Terminal de logs de la API">
+      <div class="drawer-in">
+        <div class="drawer-head">
+          <strong>Terminal de logs API</strong>
+          <button class="btn" type="button" id="clearLogs">Limpiar</button>
+          <button class="btn" type="button" id="closeLogs" aria-label="Cerrar la terminal">Cerrar</button>
+        </div>
+        <div class="drawer-status"><span class="status" id="consoleStatus" data-state="idle"><i></i><span class="st">Sin conexión comprobada</span></span></div>
+        <div class="log-body" id="logBody" role="log" aria-live="polite"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<dialog class="dlg" id="confirmDlg" aria-labelledby="dlgTitle">
+  <form method="dialog">
+    <h2 id="dlgTitle"></h2>
+    <p id="dlgText"></p>
+    <div class="dlg-actions">
+      <button class="btn" value="cancel">Cancelar</button>
+      <button class="btn btn-primary" id="dlgOk" value="ok" autofocus>Continuar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="dlg" id="pwDlg" aria-labelledby="pwTitle">
+  <form id="formPw" novalidate>
+    <h2 id="pwTitle">Cambiar contraseña</h2>
+    <p>Elige una contraseña nueva de al menos 6 caracteres.</p>
+    <div class="form-error" role="alert" hidden></div>
+    <div class="form-grid">
+      <div class="field"><label for="pwActual">Contraseña actual</label><input class="input" type="password" id="pwActual" autocomplete="current-password"><p class="err" role="alert"></p></div>
+      <div class="field"><label for="pwNueva">Contraseña nueva</label><input class="input" type="password" id="pwNueva" autocomplete="new-password"><p class="err" role="alert"></p></div>
+      <div class="field"><label for="pwNueva2">Repite la nueva</label><input class="input" type="password" id="pwNueva2" autocomplete="new-password"><p class="err" role="alert"></p></div>
+    </div>
+    <div class="dlg-actions" style="margin-top:16px"><button class="btn" type="button" id="pwCancel">Cancelar</button><button class="btn btn-primary" type="submit" id="pwSubmit">Guardar</button></div>
+  </form>
+</dialog>
+
+<div class="toast-region" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ==========================================================================
+   CONFIGURACIÓN
+   ========================================================================== */
+const CONFIG = {
+  API_BASE: 'http://localhost:4000',
+  TIMEOUT_MS: 8000,
+  REFRESCO_SEG: 60,
+  EP: {
+    login:       '/api/auth/login',
+    register:    '/api/auth/register',
+    estudiantes: '/api/estudiantes',
+    materias:    '/api/materias',
+    asistencias: '/api/asistencias',
+    alertas:     '/api/alertas',
+    reportes:    '/api/reportes',
+    cambiarPass: '/api/auth/cambiar-password'   /* POST {contrasena_actual, contrasena_nueva}, la crea el backend */
+  },
+  RIESGO: { alerta: 3, alto: 5, critico: 7 },
+  CUENTA_JUSTIFICADAS: false,
+  ASISTENCIA_EXTRAS: { materia: false },
+  ROLES_ID: { 1: 'coordinador', 2: 'docente', 3: 'dev' },
+  ROL_ID_DOCENTE: 2,
+  CORTE_MES: 6,               /* meses 1 a 6 = corte 1; meses 7 a 12 = corte 2 */
+  REGISTRO_PUBLICO: true,     /* false = oculta la pestaña "Crear cuenta" (solo cuentas creadas por listado) */
+  MAX_ARCHIVO_MB: 5,          /* tamaño máximo de los archivos Excel/CSV que se suben */
+  DEV_CORREOS: []
+};
+const ROLE_LABEL = { dev: 'SuperAdmin Creadora', coordinador: 'Coordinador', docente: 'Docente' };
+
+const CREST_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIsAAAChCAMAAADA8LydAAAAkFBMVEUCkUn39/cAAAD70wwTFhOgoJ9mZmURTi1qampdShSiiSdFOBTNsSZsbW45OTj9/f2dnZwcc0jAurqVeySNhnT54UnDwr3CvcKPj5AkJCKen569vMFANTphYWBsh3Y8PUB+foJ8kIOCe3a7xbzJuErg4N96eoGFf4IAAH87OURhHx9APkJychl/gX+AgH6/wMG8NvJzAAAAMHRSTlP//gL//v7+/wb/////oZ4CK//+/////P+gXGX/nVz3/6L//v//pf//Ap4V/wOiaP9TKK69AAAIiUlEQVR42u2ciXqbOBCALaoZwNSxcWzn2iRNmt677fu/3UozkhAgbA65S/fzfImNhSR+ZkYnQotkPrK4sPwxLNl/K3PVy93KyofbD/rrn1v9YQNvzbnVMfngR121f3iyaOSXJZllyZIrYQXghj5Bf1CA+n+gQzCfJlAchPAjUQpOZxP/MqE2hY2tPh9cmBJM1l8dy8KxSClBoP4E9aEDgAIlB+pPVIl1Bq86O46EqE4IjiJ1DAoHFSRNFOkyFxRBHYAEx5IE9AKUA+pIBehLImWs81KBiFt9CEAswKSKQ2dLGSNHFge5FYSnYnIK6c7iToidwC1lHWD55lhQX7Yo1E1z7gXoDEBlKxHUn8YDfXlSGHEQGOdLd6sCdzldQjFQXDT0dAeS9a8TeyxZ20b6ZlOQbHKVPyKxaANIfT19XpEB50Y/8YX1aVgUADKfvq48UBRiOeh/pUCxIz0hfsajNiJDwDNrSCVgTwFt9mfyCrQ2hB+sdSE/Gn0qeTame9E4DyhKySmY/pkSSMMm2dW6WST7HJag9UAKpowotaK4kT/UvSvnA20LYD+0zsMWlpSInJ89TXIKJNcmc8oHtvNxFroBFY81K3QBt+UUuICaCNoR8CAOaAqrK+CA7ESgf4GfgtWoP29M/bA7wqLzQcWtpcj5S2KOypdzPpTuvD6dF/qnFvVVyILiuHD1R0l1FMq3OqT8uIR3ssjfLEdYHqTMlyG5XvaRaxevV/xrn+V7k+VGyrf9u98k+31+wkbvB+f5XhZ5nst8OE18liWVTLiwtGx0YbnYaABLMTeWbb4/I8v7ZT+5ZhsVPaMvx7DkvVs4bpP7ynIMy070lapHf1IOxZlZhDx0YmIjoLiOxIId99+tF5B4JpauS3az6I4cxGeR2HnFoyyuux+PBaUcy0J99YgsQGUXYBSLHQJEYjF95TCMxwJc26AJ4gooMgsauwdhPBbSnR5OyYrFzABEYjGTHdCuL1os9tBnwYgsNNNANYXszYIeC4+G47DQ7IXGAHuNnnqpmqloLNo80FWIjrDoaQXTbMYq05LG9Yjmu40kA3W+ZDtRmmgsWzQzh5InNTBQiaCvQQRTjgCtyobbaBtkQeczNNWEgba4Kl2SqJEdhGYKoW66iSx2gi7YUhsOnqBxl6apSomBBNNYhL7PmlOEexF0yM0E8LwqBJqHiSw67y9VDVEzDwg3jyXAKpHKME/S4dj+y7a7fhFBFEE1MZj+G1jn0QZD+tdckVnat1fpBd2RnWdnMT4EsW3U2SPwroXdXdDpLDl8Riuv2BLg4uWzgH82KKoULEewXPcZ7DRYbNsTYXxU1wv2GBjVbWSPj5nqbCwh36U2ACP7S7g+gXB1h+jUgUe9uIikF1daG3WdCaw0ZA5D5DH0UrlGrdLwFGByJvuA7UhhfBaqRWU1aKs8ArjeRacDtGrR8dvN+mQW9DVunoGiPwzBuvtg1SrGZgHb9BivgEbJrc95IHBfHYLTAZNYnD2M7sFSVGYRLdcyLTc33DXSKSzoHt5yDeI8FyqvgUZbjPVJj1oTP4EFzUiNj6tH5uaHHQU1hruNeRIZhQVcE2xrMfto0Va40GJp9XQwJout300HyXPkPiwAIiKLW6hQ5e0mVABaNmJai9QoSONZdlUVUpUaGv2A6GRhj7ZeI2OVaRTBUutVLhC4HhVoCE9kTi1HgR4JoO8MstWIuuUBchetnQbKatdub+Gz55fP7dMHCE+fTap3v0DH/ILXfZChk3resz2qqvSyLzyWr4FnwgP7dSwfA0NKpHUG7dvoa6OHGstr/zn4tH/Uvjaqs+Rb6CsyENaRum/f+6Y+Jil6iR1rFD3lFMs3NxfkPWp630+Wam2Ufsb31jP+u6Dvxn3GF/9543JGzz7f9iS912rs92+GxSQbkPZUXafXbAyTomC3H5wwlydYxogpgnHXBekMU/6zIvWfDmp+s+gYliWtAsNJUl8o+nG9lIuhUlKlu02Hp0yDLH85310Mz5FYYBYsJTUAOOYuTpTpMTly0lmwRLbRFN+1LIsLS8N3uUzPwV9s/TIfFpgRy2EeLPJcehnju/DrYSYsaTofvaRn85f/g14uLBeWP7Acna2POYblMDMbzaPPcL5+3YXlwvI7WA7zYJEz0st56t2L715Y/lSWkX2Gs7CICX1MGZ9lrI1ENL38NUUvVNe9zoKlNLPdw1nkURaU6SgbwRjfLcPvlU9hWehlUeIlGsuVmNDh1W92CByhULeua5Wsqz00rrbOYUbkOZKlWht/n2wcyyaBKQ7zpFjKcryJaiyZYxlT86Z6udIYE7kn7AvisHuuVGvqhysmLfUqggkm+kTuUu1F473aM6pQD09VmajBsvFevxqsmBI+Di7SpffG2Yq2f6n2xQFPMeXwgvRUjleLeFz7LOvk5wTFlE8wtEj7agEqRY4lS777ihmaMb6Ug1Gq1TXGRM5G6+TJf0suHfhE4CkdbyHxd3NPp+TRnfsih7pMOrCmS/1XJbG111WW3NZe2SuH5T0wur/C+M6YqGJZV1UMw6TnYinrKPdcudT2usoSHA2TpsO6Xt6V4C4L7Ud2B41XR/vfbDrEPrUVd4+mQNdZsuTOi/NEiySG9zhPk9TXYydZcJ82vyxZ1aRpPJAylc1F+nB31bFn3Ca5ry+5NCtIyunqKUtekVJfQAtZ9/51DRhLI2V96cpwse/fNFYhZknWvZfeugHD781Fkbz1ionSyubYvn6bFoxZBIpTJLi6FJKaVgJ76W1qRfuMgkldK6F9/RbJ3e35SeCxqZXgHoOq2VydWzX3vfeBVA3E1RlpDmpPwZZSju69mN1+OgvJp5W+22zI/pjarx5XADH1A3D7swvkuF42a944cxNLGKGL5MT+mFn0LTDXm2z0HqZqS891NLH7g172dh0m/wLdoOdAkofRpwAAAABJRU5ErkJggg==';
+document.querySelectorAll('img.crest').forEach(i => { i.src = CREST_SRC; });
+
+/* ==========================================================================
+   Utilidades
+   ========================================================================== */
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const nf = new Intl.NumberFormat('es-CO');
+const pad = n => String(n).padStart(2, '0');
+const clock = (d = new Date()) => `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+const dayKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const localStamp = (d = new Date()) => `${dayKey(d)} ${clock(d)}`;
+const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const initials = n => String(n).split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const pick = (o, keys) => { if (!o || typeof o !== 'object') return undefined; for (const k of keys) { if (o[k] !== undefined && o[k] !== null && o[k] !== '') return o[k]; } return undefined; };
+const extractList = d => Array.isArray(d) ? d : (d && typeof d === 'object' ? (Object.values(d).find(Array.isArray) || []) : []);
+const plain = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const parseDate = v => {
+  if (!v) return null; const s = String(v).trim();
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);           /* solo fecha: se toma como día local (new Date('2026-11-14') sería UTC y caería un día antes en Colombia) */
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+  const d = new Date(s.includes('T') ? s : s.replace(' ', 'T')); return isNaN(d) ? null : d;
+};
+const fmtDate = v => { const d = parseDate(v); return d ? `${d.getDate()} ${MESES[d.getMonth()]} ${pad(d.getHours())}:${pad(d.getMinutes())}` : (v ? String(v) : '—'); };
+function jwtPayload(t) {
+  try { const p = String(t).split('.')[1]; if (!p) return {}; const bin = atob(p.replace(/-/g, '+').replace(/_/g, '/')); return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)))); } catch (e) { return {}; }
+}
+
+const ICONS = {
+  dashboard: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+  asistencia: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+  materias: '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
+  estudiantes: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  alertas: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  reportes: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 17v-3M12 17v-6M16 17v-2"/>',
+  usuarios: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+  permisos: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  terminal: '<path d="m4 17 6-6-6-6"/><path d="M12 19h8"/>',
+  check: '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
+  carreras: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/><path d="M22 10v6"/>',
+  docentes: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17c.8-2 2.2-3 3.5-3s2.7 1 3.5 3"/><path d="M14.5 9.5H18M14.5 13H18"/>',
+  key: '<circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 9.2-9.2"/><path d="m16 7 3 3"/>',
+  eyeoff: '<path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4"/><path d="M6.6 6.6C3.7 8.4 2 12 2 12s3.5 7 10 7c1.7 0 3.2-.4 4.5-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  warn: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>'
+};
+function paintIcons() {
+  $$('svg[data-icon]').forEach(svg => {
+    svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor'); svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke-linecap', 'round'); svg.setAttribute('stroke-linejoin', 'round'); svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML = ICONS[svg.dataset.icon] || '';
+  });
+}
+const iconSvg = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+
+/* ==========================================================================
+   Lectura de archivos Excel (.xlsx) y CSV
+   - .xlsx es un ZIP con XML dentro: se descomprime con DecompressionStream (nativo del navegador, sin librerías).
+   - Se lee solo la primera hoja visible y se convierte a texto separado por tabulaciones,
+     que es el mismo formato que ya entienden los analizadores de estudiantes y docentes.
+   - Un .xls antiguo (formato binario) no se puede leer: se pide guardarlo como .xlsx o CSV.
+   ========================================================================== */
+const xmlDecode = s => String(s).replace(/&(#x[0-9a-f]+|#\d+|lt|gt|quot|apos|amp);/gi, (m, g) => {
+  const l = g.toLowerCase();
+  if (l === 'lt') return '<'; if (l === 'gt') return '>'; if (l === 'quot') return '"'; if (l === 'apos') return "'"; if (l === 'amp') return '&';
+  const n = l[1] === 'x' ? parseInt(l.slice(2), 16) : parseInt(l.slice(1), 10);
+  try { return String.fromCodePoint(n); } catch (e) { return ''; }
+});
+const xmlAttr = (tag, name) => { const m = new RegExp('(?:^|\\s)' + name + '="([^"]*)"').exec(tag); return m ? xmlDecode(m[1]) : ''; };
+const xmlTexts = s => { const out = []; const re = /<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g; let m; s = String(s).replace(/<rPh\b[\s\S]*?<\/rPh>/g, ''); while ((m = re.exec(s))) out.push(m[1]); return xmlDecode(out.join('')); };
+const xlColIndex = ref => { const m = /^([A-Z]+)/i.exec(ref); if (!m) return 0; let n = 0; for (const ch of m[1].toUpperCase()) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; };
+/* Excel guarda los números grandes a veces en notación científica (1.00123456E8): se devuelven como dígitos completos */
+const xlNum = v => {
+  if (/^-?\d+(\.\d+)?[eE][+-]?\d+$/.test(v)) { const n = Number(v); if (Number.isFinite(n) && Math.abs(n) < 1e21) return n.toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 6 }); }
+  return /^-?\d+\.0+$/.test(v) ? v.replace(/\.0+$/, '') : v;
+};
+async function inflateRaw(u8) {
+  const stream = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+function zipIndex(buf) {
+  const u8 = new Uint8Array(buf), dv = new DataView(buf), files = {};
+  let e = u8.length - 22; while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('El archivo no es un .xlsx válido.');
+  const n = dv.getUint16(e + 10, true); let p = dv.getUint32(e + 16, true);
+  for (let i = 0; i < n; i++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) break;
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nlen = dv.getUint16(p + 28, true), elen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    files[new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen))] = { method, csize, off };
+    p += 46 + nlen + elen + clen;
+  }
+  return {
+    names: Object.keys(files),
+    async read(name) {
+      const f = files[name]; if (!f) return null;
+      const start = f.off + 30 + dv.getUint16(f.off + 26, true) + dv.getUint16(f.off + 28, true), data = u8.subarray(start, start + f.csize);
+      return new TextDecoder().decode(f.method === 0 ? data : await inflateRaw(data));
+    }
+  };
+}
+function xlsxSharedStrings(xml) {
+  const out = [], re = /<si\b[^>]*?(?:\/>|>([\s\S]*?)<\/si>)/g; let m;
+  while ((m = re.exec(xml || ''))) out.push(m[1] ? xmlTexts(m[1]) : '');
+  return out;
+}
+function xlsxSheetRows(xml, sst) {
+  const rows = [], rowRe = /<row\b[^>]*?(?:\/>|>([\s\S]*?)<\/row>)/g; let rm;
+  while ((rm = rowRe.exec(xml))) {
+    if (!rm[1]) continue;
+    const cells = [], cRe = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g; let cm, next = 0;
+    while ((cm = cRe.exec(rm[1]))) {
+      const attrs = cm[1], body = cm[2] || '', ref = xmlAttr(attrs, 'r'), idx = ref ? xlColIndex(ref) : next, t = xmlAttr(attrs, 't'), v = /<v>([\s\S]*?)<\/v>/.exec(body);
+      next = idx + 1;
+      let val = '';
+      if (t === 's') val = v ? (sst[+v[1]] ?? '') : '';
+      else if (t === 'inlineStr') val = xmlTexts(body);
+      else if (t === 'e') val = '';
+      else if (v) { val = xmlDecode(v[1]).trim(); if (t !== 'str' && t !== 'b') val = xlNum(val); }
+      cells[idx] = String(val).replace(/[\t\r\n]+/g, ' ').trim();
+    }
+    if (cells.some(c => c)) rows.push(Array.from(cells, c => c || ''));
+  }
+  return rows;
+}
+async function xlsxToText(buf) {
+  if (typeof DecompressionStream === 'undefined') throw new Error('Tu navegador no puede abrir archivos .xlsx. Guarda el Excel como CSV o actualiza el navegador.');
+  const zip = zipIndex(buf);
+  const sst = xlsxSharedStrings(await zip.read('xl/sharedStrings.xml'));
+  let sheetPath = null;
+  const wb = await zip.read('xl/workbook.xml'), rels = await zip.read('xl/_rels/workbook.xml.rels');
+  if (wb && rels) {
+    const sheet = (wb.match(/<sheet\b[^>]*>/g) || []).find(s => xmlAttr(s, 'state') !== 'hidden' && xmlAttr(s, 'state') !== 'veryHidden');
+    const rid = sheet && xmlAttr(sheet, 'r:id');
+    const rel = rid && (rels.match(/<Relationship\b[^>]*>/g) || []).find(r => xmlAttr(r, 'Id') === rid);
+    const target = rel && xmlAttr(rel, 'Target');
+    if (target) sheetPath = target.startsWith('/') ? target.slice(1) : 'xl/' + target.replace(/^\.\//, '');
+  }
+  if (!sheetPath || !zip.names.includes(sheetPath)) sheetPath = zip.names.filter(n => /^xl\/worksheets\/sheet\d+\.xml$/.test(n)).sort((a, b) => parseInt(a.match(/\d+/)) - parseInt(b.match(/\d+/)))[0];
+  if (!sheetPath) throw new Error('No se encontró ninguna hoja con datos en el Excel.');
+  const rows = xlsxSheetRows(await zip.read(sheetPath), sst);
+  return rows.map(r => r.join('\t')).join('\n');
+}
+async function readTableFile(file) {
+  const maxMb = CONFIG.MAX_ARCHIVO_MB;
+  if (file.size > maxMb * 1024 * 1024) throw new Error(`El archivo pesa más de ${maxMb} MB. Divide el listado en partes.`);
+  const buf = await file.arrayBuffer(), h = new Uint8Array(buf.slice(0, 4));
+  const isZip = h[0] === 0x50 && h[1] === 0x4b, isOle = h[0] === 0xD0 && h[1] === 0xCF && h[2] === 0x11 && h[3] === 0xE0;
+  if (isOle) throw new Error('Ese es un Excel antiguo (.xls) y no se puede leer. Ábrelo en Excel y guárdalo como .xlsx o como CSV.');
+  if (/\.xlsx$/i.test(file.name) && !isZip) throw new Error('El archivo no es un .xlsx válido. Ábrelo en Excel y vuelve a guardarlo.');
+  let text;
+  if (isZip) {
+    try { text = await xlsxToText(buf); } catch (e) { throw new Error(e && e.message ? e.message : 'No se pudo leer el Excel.'); }
+  } else {
+    text = new TextDecoder('utf-8').decode(buf);
+    if (text.includes('\uFFFD')) text = new TextDecoder('windows-1252').decode(buf);   /* CSV guardado por Excel en ANSI: las tildes se leen mal en UTF-8 */
+  }
+  if (!text.trim()) throw new Error('No se encontraron filas con datos en el archivo.');
+  return text;
+}
+/* Lee el archivo, lo pone en la caja de texto y muestra los errores en la caja roja indicada */
+async function loadTableInto(file, errBox, put, nameEl) {
+  errBox.hidden = true;
+  if (nameEl) nameEl.hidden = true;
+  try {
+    put(await readTableFile(file));
+    if (nameEl) { nameEl.textContent = 'Archivo leído: ' + file.name; nameEl.hidden = false; }
+  } catch (e) {
+    errBox.textContent = (e && e.message) || 'No se pudo leer el archivo.'; errBox.hidden = false;
+  }
+}
+
+/* ==========================================================================
+   Niveles, roles y permisos
+   ========================================================================== */
+const LEVELS = {
+  crit: { label: 'Crítico', color: 'var(--crit)' },
+  high: { label: 'Alto',    color: 'var(--high)' },
+  mid:  { label: 'Medio',   color: 'var(--mid)'  },
+  ok:   { label: 'Normal',  color: 'var(--ok)'   }
+};
+const levelByFaltas = f => { const R = CONFIG.RIESGO; return f >= R.critico ? 'crit' : f >= R.alto ? 'high' : f >= R.alerta ? 'mid' : 'ok'; };
+const badge = k => `<span class="badge ${k}">${LEVELS[k].label}</span>`;
+
+const ROLES = [
+  { key: 'dev',         name: 'SuperAdmin Creadora', note: 'Desarrolladores, control total', locked: true,  color: 'var(--k-gold)' },
+  { key: 'coordinador', name: 'Coordinador',         note: 'Carga listados, carreras y docentes', locked: false, color: 'var(--k-navy)' },
+  { key: 'docente',     name: 'Docente',             note: 'Planillas de asistencia por grupo', locked: false, color: 'var(--k-teal)' }
+];
+const MODULES = [
+  { key: 'dashboard',   name: 'Panel general',        edit: false },
+  { key: 'asistencia',  name: 'Tomar asistencia',     edit: true  },
+  { key: 'materias',    name: 'Materias',             edit: true  },
+  { key: 'estudiantes', name: 'Estudiantes',          edit: true  },
+  { key: 'carreras',    name: 'Carreras y cortes',    edit: true  },
+  { key: 'docentes',    name: 'Listado de docentes',  edit: true  },
+  { key: 'alertas',     name: 'Alertas tempranas',    edit: false },
+  { key: 'reportes',    name: 'Reportes',             edit: false },
+  { key: 'usuarios',    name: 'Registrar usuarios',   edit: true  },
+  { key: 'permisos',    name: 'Matriz de permisos',   edit: true  },
+  { key: 'logs',        name: 'Terminal de logs API', edit: false }
+];
+const PERMS_BASE = {
+  dev:         Object.fromEntries(MODULES.map(m => [m.key, 'e'])),
+  coordinador: { dashboard: 'v', asistencia: 'v', materias: 'e', estudiantes: 'e', carreras: 'e', docentes: 'e', alertas: 'v', reportes: 'v', usuarios: '',  permisos: '', logs: '' },
+  docente:     { dashboard: 'v', asistencia: 'e', materias: 'v', estudiantes: 'v', alertas: 'v', reportes: '',  usuarios: '',  permisos: '', logs: '' }
+};
+function buildPerms() {
+  const out = {};
+  Object.entries(PERMS_BASE).forEach(([r, spec]) => {
+    out[r] = {};
+    MODULES.forEach(m => { const v = spec[m.key] || ''; out[r][m.key] = { ver: v !== '', editar: v === 'e' && m.edit }; });
+  });
+  try {
+    const st = JSON.parse(store.get('kairosPermisos') || 'null');
+    if (st) ['coordinador', 'docente'].forEach(r => MODULES.forEach(m => {
+      const x = st[r] && st[r][m.key]; if (x) out[r][m.key] = { ver: !!x.ver, editar: !!x.ver && !!x.editar && m.edit };
+    }));
+  } catch (e) {}
+  return out;
+}
+function roleKeyOf(u) {
+  const mail = plain(pick(u, ['correo', 'email']));
+  if (mail && CONFIG.DEV_CORREOS.some(c => plain(c) === mail)) return 'dev';
+  const t = plain(pick(u, ['rol', 'nombre_rol', 'role']));
+  if (t) { if (/super|desarroll|creador/.test(t)) return 'dev'; if (/coordin|admin/.test(t)) return 'coordinador'; if (/docen|profe/.test(t)) return 'docente'; }
+  const id = Number(pick(u, ['fk_rol', 'rol_id', 'id_rol']));
+  return CONFIG.ROLES_ID[id] || 'docente';
+}
+
+const DEF_CARRERA = 'Ingeniería Informática', DEF_GRUPO = 'G-01';
+/* Metadatos locales de Carrera/Grupo por documento.
+   OJO: esto vive en el localStorage de ESTE navegador. Si el coordinador sube un listado y la API no guarda
+   carrera/grupo, los docentes (otro navegador) verán todo en la carrera/grupo por defecto.
+   La solución real es que el backend guarde y devuelva carrera y grupo. */
+function getMetaMap() { try { return JSON.parse(store.get('kairosEstMeta') || '{}'); } catch (e) { return {}; } }
+function saveMeta(doc, carrera, grupo, periodo) {
+  if (!doc) return;
+  const m = getMetaMap();
+  m[String(doc).trim()] = { carrera: carrera || DEF_CARRERA, grupo: grupo || DEF_GRUPO, periodo: periodo || '' };
+  store.set('kairosEstMeta', JSON.stringify(m));
+}
+
+/* ---- Cortes (periodos), catálogo de carreras y docentes (guardados en este navegador) ---- */
+const PERIODO_RE = /^\d{4}-\d$/;
+const periodoDeFecha = d => `${d.getFullYear()}-${d.getMonth() + 1 <= CONFIG.CORTE_MES ? 1 : 2}`;
+function getCat() { try { const c = JSON.parse(store.get('kairosCatalogo') || '{}'); return { carreras: c.carreras || [], grupos: c.grupos || [], periodos: c.periodos || [] }; } catch (e) { return { carreras: [], grupos: [], periodos: [] }; } }
+function saveCat(c) { store.set('kairosCatalogo', JSON.stringify(c)); }
+function getDocentes() { try { return JSON.parse(store.get('kairosDocentes') || '[]'); } catch (e) { return []; } }
+/* Del docente solo se guarda nombre, correo y grupos. Su ID (contraseña inicial) NO se guarda en el navegador. */
+function saveDocente(d) { const l = getDocentes().filter(x => plain(x.correo) !== plain(d.correo)); l.unshift(d); store.set('kairosDocentes', JSON.stringify(l.slice(0, 500))); }
+
+const state = {
+  auth: false, token: null, user: null, role: 'docente', viewAs: null, sid: 0, logN: 0,
+  estudiantes: [], materias: [], asistencias: [], alertas: [], usuariosCreados: [],
+  fm: {}, hoy: {}, eff: [], estVis: [], saving: false, bulkBusy: false, docParsed: [], docBusy: false,
+  periodo: (() => { const sp = store.get('kairosPeriodo'); return sp === null ? periodoDeFecha(new Date()) : sp; })(),
+  /* Estado de planilla tipo Excel (cambios sin guardar: { [estId]: 'Presente'|'Ausente'|'Justificada' }) */
+  draftAsis: {},
+  planOnly: false,
+  /* Filtros de profundización del Coordinador */
+  dashCarrera: '',
+  dashGrupo: '',
+  /* Carga masiva CSV/Excel */
+  bulkParsed: [],
+  seen: new Set(), prevKeys: null, alertsReady: false,
+  status: { est: 'idle', mat: 'idle', asis: 'idle', alert: 'idle' }, errors: {}, perms: buildPerms()
+};
+const role = () => state.viewAs || state.role;
+const corteActual = () => !state.periodo || state.periodo === periodoDeFecha(new Date());
+const canMark = () => can('asistencia', 'editar') && corteActual();
+/* Grupos asignados al docente: los que devuelva la API en su usuario o, si no, los de su listado (solo este navegador) */
+function misGrupos() {
+  if (role() !== 'docente') return null;
+  let g = state.user && state.user.grupos;
+  if (typeof g === 'string') g = g.split(/[|,\/]/);
+  if (!Array.isArray(g) || !g.length) { const me = getDocentes().find(d => plain(d.correo) === plain(pick(state.user || {}, ['correo', 'email']))); g = me && me.grupos; }
+  g = (g || []).map(x => plain(String(x).trim())).filter(Boolean);
+  return g.length ? new Set(g) : null;
+}
+function can(mod, act) {
+  const p = state.perms[role()] && state.perms[role()][mod];
+  return !!p && (act === 'editar' ? p.editar : p.ver);
+}
+
+/* ==========================================================================
+   Terminal de logs
+   ========================================================================== */
+const logBody = $('#logBody');
+const scrollLogs = () => { logBody.scrollTop = logBody.scrollHeight; };
+const trimLogs = () => { while (logBody.children.length > 240) logBody.firstChild.remove(); };
+function countLog() { state.logN++; $('#logCount').textContent = state.logN; }
+function logSys(html, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'log-sys ' + cls;
+  el.innerHTML = `<span style="color:#5d6580">${clock()}</span>  ${html}`;
+  logBody.appendChild(el); scrollLogs(); trimLogs(); countLog();
+  return el;
+}
+const maskBody = b => { if (!b) return null; const c = Object.assign({}, b); ['contrasena', 'password', 'pass', 'contrasena_actual', 'contrasena_nueva'].forEach(k => { if (k in c) c[k] = '••••••'; }); return c; };
+function logHttp({ method, path, status, ms, data, req }) {
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  const cls = status >= 500 || status === 0 ? 's5' : status >= 400 ? 's4' : 's2';
+  line.innerHTML = `<span class="t">${clock()}</span><span class="m ${esc(method)}">${esc(method)}</span><span class="p">${esc(path)}</span><span class="s ${cls}">${status || 'ERR'}</span><span class="ms">${ms} ms</span>`;
+  logBody.appendChild(line);
+  if (req) { const r = document.createElement('div'); r.className = 'log-req'; r.textContent = '→ ' + JSON.stringify(maskBody(req)); logBody.appendChild(r); }
+  const pre = document.createElement('pre');
+  pre.className = 'log-json';
+  let txt = JSON.stringify(data, null, 2) || '';
+  if (txt.length > 1200) txt = txt.slice(0, 1200) + '\n…';
+  pre.textContent = txt;
+  logBody.appendChild(pre); scrollLogs(); trimLogs(); countLog();
+}
+$('#clearLogs').addEventListener('click', () => { logBody.innerHTML = ''; logSys('Terminal limpia.'); });
+function setLogs(open) { $('#body').classList.toggle('logs-open', open); $('#logsBtn').setAttribute('aria-expanded', String(open)); }
+$('#logsBtn').addEventListener('click', () => setLogs(!$('#body').classList.contains('logs-open')));
+$('#closeLogs').addEventListener('click', () => setLogs(false));
+
+function setApiStatus(mode) {
+  const label = mode === 'online' ? 'API en línea' : mode === 'offline' ? 'Sin conexión con la API' : 'Comprobando la API';
+  ['#apiStatus', '#consoleStatus', '#loginStatus'].forEach(sel => { const el = $(sel); el.dataset.state = mode; $('.st', el).textContent = label; });
+}
+
+/* ==========================================================================
+   Cliente API
+   ========================================================================== */
+async function api(method, path, body, quiet) {
+  const t0 = performance.now();
+  const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), CONFIG.TIMEOUT_MS);
+  const headers = { 'Content-Type': 'application/json' };
+  if (state.token) headers.Authorization = 'Bearer ' + state.token;
+  let status = 0, data = {}, net = false;
+  try {
+    const res = await fetch(CONFIG.API_BASE + path, { method, headers, body: body ? JSON.stringify(body) : undefined, signal: ctrl.signal });
+    status = res.status;
+    const text = await res.text();
+    try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { raw: text.slice(0, 300) }; }
+    setApiStatus('online');
+  } catch (err) {
+    net = true; setApiStatus('offline');
+    data = { error: err.name === 'AbortError' ? 'La API tardó demasiado en responder.' : 'Error de conexión con el Backend.', ayuda: 'Revisa que el servidor esté en ' + CONFIG.API_BASE };
+  } finally { clearTimeout(timer); }
+  const ok = status >= 200 && status < 300;
+  if (!quiet || !ok) logHttp({ method, path, status, ms: Math.round(performance.now() - t0), data, req: body });
+  if (status === 401 && state.token && path !== CONFIG.EP.login) showLogin('Tu sesión expiró. Inicia sesión otra vez.');
+  return { ok, status, data, net };
+}
+function errMsg(r, fallback) {
+  if (r.net) return r.data.error;
+  const m = r.data && (r.data.message || r.data.error || r.data.mensaje);
+  return m ? (typeof m === 'string' ? m : JSON.stringify(m)) : fallback;
+}
+async function pingApi() {
+  const line = logSys('Comprobando <b>' + esc(CONFIG.API_BASE) + '</b>'); line.classList.add('caret');
+  try {
+    const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 3000);
+    await fetch(CONFIG.API_BASE, { mode: 'no-cors', signal: ctrl.signal }); clearTimeout(timer);
+    setApiStatus('online'); line.classList.remove('caret'); logSys('El servidor respondió.');
+  } catch (e) {
+    setApiStatus('offline'); line.classList.remove('caret');
+    logSys('No hay respuesta de ' + esc(CONFIG.API_BASE) + '. Enciende el backend para iniciar sesión.', 'err');
+  }
+}
+
+/* ==========================================================================
+   Tema, avisos, confirmación y validación
+   ========================================================================== */
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  $$('[data-theme-set]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.themeSet === t)));
+  store.set('kairos-theme', t);
+}
+(function () {
+  applyTheme(store.get('kairos-theme') === 'light' ? 'light' : 'dark');
+  $$('[data-theme-set]').forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.themeSet)));
+})();
+function toast(msg, kind) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind === 'warn' ? ' warn' : ''); el.innerHTML = iconSvg(kind === 'warn' ? 'warn' : 'check') + `<span>${esc(msg)}</span>`;
+  $('#toasts').appendChild(el);
+  setTimeout(() => { el.classList.add('leaving'); setTimeout(() => el.remove(), 240); }, kind === 'warn' ? 6500 : 2600);
+}
+function askConfirm(title, text, okLabel) {
+  return new Promise(res => {
+    const dlg = $('#confirmDlg'); $('#dlgTitle').textContent = title; $('#dlgText').textContent = text; $('#dlgOk').textContent = okLabel || 'Continuar';
+    const done = () => { dlg.removeEventListener('close', done); res(dlg.returnValue === 'ok'); };
+    dlg.addEventListener('close', done); dlg.returnValue = ''; dlg.showModal();
+  });
+}
+function setErr(input, msg) {
+  const p = $('.err', input.closest('.field')); if (p) p.textContent = msg || '';
+  input.setAttribute('aria-invalid', msg ? 'true' : 'false'); return !msg;
+}
+function validate(rules) {
+  let bad = null;
+  rules.forEach(([el, test]) => { if (!setErr(el, test(el.value.trim())) && !bad) bad = el; });
+  if (bad) bad.focus();
+  return !bad;
+}
+function formError(form, msg) { const box = $('.form-error', form); if (!box) return; box.textContent = msg || ''; box.hidden = !msg; }
+const required = msg => v => v ? '' : msg;
+const emailRule = v => !v ? 'Escribe el correo.' : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Revisa el correo, parece incompleto.';
+const intRule = (empty, bad) => v => !v ? empty : /^\d+$/.test(v) && Number(v) >= 1 ? '' : bad;
+document.addEventListener('input', e => { if (e.target.matches('.input[aria-invalid="true"]')) setErr(e.target, ''); });
+
+/* ==========================================================================
+   Sesión y roles
+   ========================================================================== */
+function paintUser() {
+  const u = state.user || {};
+  const name = pick(u, ['nombre', 'name']) || pick(u, ['correo', 'email']) || 'Usuario';
+  $('#uName').textContent = name; $('#uAvatar').textContent = initials(name);
+  $('#uRole').textContent = state.viewAs ? 'Viendo como ' + ROLE_LABEL[state.viewAs] : ROLE_LABEL[state.role];
+}
+/* Lo que el rol no puede hacer NO se muestra: cada bloque con data-lock se oculta por completo si no hay permiso de edición.
+   Si en una pantalla queda solo la lista, esta ocupa todo el ancho. */
+function applyLocks() {
+  $$('[data-lock]').forEach(el => { el.hidden = !can(el.dataset.lock, 'editar'); });
+  $$('.list-form').forEach(lf => {
+    const forms = [...lf.children].filter(c => c.dataset.lock);
+    lf.classList.toggle('no-form', forms.length > 0 && forms.every(c => c.hidden));
+  });
+}
+function applyRole() {
+  $$('.dock a').forEach(a => { a.hidden = !can(a.dataset.route, 'ver'); });
+  const logsOk = can('logs', 'ver'); $('#logsBtn').hidden = !logsOk; if (!logsOk) setLogs(false);
+  $('#viewAsWrap').hidden = state.role !== 'dev'; $('#viewAs').value = state.viewAs || '';
+  paintUser(); applyLocks(); renderRbac(); renderAll(); updateBulkPreview(); updateDocPreview(); route();
+}
+$('#viewAs').addEventListener('change', e => { state.viewAs = e.target.value || null; applyRole(); });
+
+function resetData() {
+  state.estudiantes = []; state.materias = []; state.asistencias = []; state.alertas = []; state.usuariosCreados = [];
+  state.status = { est: 'idle', mat: 'idle', asis: 'idle', alert: 'idle' }; state.errors = {};
+  state.draftAsis = {}; state.dashCarrera = ''; state.dashGrupo = ''; state.bulkParsed = []; state.saving = false; state.bulkBusy = false; state.docBusy = false; $('#bulkPaste').value = ''; $('#docPaste').value = ''; state.docParsed = [];
+  $('#csvFileName').hidden = true;
+  state.prevKeys = null; state.alertsReady = false; state.planOnly = false;
+  $('#reportOut').innerHTML = '<p class="state-msg">Pulsa “Generar reporte completo” para ver los datos.</p>';
+  renderAll(); renderUsuarios();
+}
+function showLogin(msg) {
+  state.auth = false; state.token = null; state.user = null; state.viewAs = null; state.sid++; stopPolling();
+  store.del('tokenJWT'); store.del('kairosUsuario'); resetData(); closeNotifs();
+  $('#app').hidden = true; $('#login').hidden = false; setLogs(false);
+  const box = $('#loginError'); box.textContent = msg || ''; box.hidden = !msg;
+  history.replaceState(null, '', location.pathname + location.search); $('#loginCorreo').focus();
+}
+function enterApp() {
+  state.auth = true; state.sid++; state.viewAs = null;
+  state.role = roleKeyOf(state.user); state.perms = buildPerms();
+  try { state.seen = new Set(JSON.parse(store.get('kairosVistas') || '[]')); } catch (e) { state.seen = new Set(); }
+  $('#login').hidden = true; $('#app').hidden = false;
+  applyRole();
+  setLogs(can('logs', 'ver') && window.innerWidth >= 1360);
+  if (!location.hash || location.hash === '#/login') location.hash = '#/dashboard'; else route();
+  loadAll(); startPolling();
+}
+$('#formLogin').addEventListener('submit', async e => {
+  e.preventDefault();
+  const correo = $('#loginCorreo'), pass = $('#loginPass');
+  $('#loginError').hidden = true; $('#loginInfo').hidden = true;
+  if (!validate([[correo, emailRule], [pass, required('Escribe tu contraseña.')]])) return;
+  const btn = $('#loginSubmit'); btn.disabled = true; btn.textContent = 'Entrando';
+  const r = await api('POST', CONFIG.EP.login, { correo: correo.value.trim(), contrasena: pass.value });
+  btn.disabled = false; btn.textContent = 'Iniciar sesión';
+  if (r.ok && r.data.token) {
+    state.token = r.data.token;
+    state.user = Object.assign({}, jwtPayload(state.token), { correo: correo.value.trim() }, r.data.usuario || {});
+    store.set('tokenJWT', state.token); store.set('kairosUsuario', JSON.stringify(state.user));
+    const inicial = /^\d{4,}$/.test(pass.value);
+    pass.value = ''; hidePw($('#formLogin')); enterApp();
+    if (inicial) setTimeout(() => toast('Tu contraseña inicial es tu ID. Cámbiala con el botón de la llave (arriba a la derecha).', 'warn'), 1800);
+  } else {
+    const box = $('#loginError');
+    box.textContent = r.ok ? 'La API respondió sin token. Revisa la ruta de inicio de sesión.' : errMsg(r, 'Credenciales incorrectas');
+    box.hidden = false;
+  }
+});
+$('#logoutBtn').addEventListener('click', () => showLogin(''));
+
+function setTab(which) {
+  const login = which === 'login';
+  $('#tabLogin').setAttribute('aria-selected', String(login)); $('#tabSignup').setAttribute('aria-selected', String(!login));
+  $('#panelLogin').hidden = !login; $('#panelSignup').hidden = login;
+}
+$('#tabLogin').addEventListener('click', () => setTab('login'));
+$('#tabSignup').addEventListener('click', () => setTab('signup'));
+$('#formSignup').addEventListener('submit', async e => {
+  e.preventDefault();
+  const n = $('#sgNombre'), c = $('#sgCorreo'), p = $('#sgPass'), p2 = $('#sgPass2');
+  $('#signupError').hidden = true;
+  if (!validate([[n, required('Escribe tu nombre completo.')], [c, emailRule],
+    [p, v => !v ? 'Escribe una contraseña.' : v.length < 6 ? 'Usa al menos 6 caracteres.' : ''],
+    [p2, () => p2.value === p.value ? '' : 'Las contraseñas no coinciden.']])) return;
+  const btn = $('#signupSubmit'); btn.disabled = true; btn.textContent = 'Creando';
+  const r = await api('POST', CONFIG.EP.register, { nombre: n.value.trim(), correo: c.value.trim(), contrasena: p.value, fk_rol: CONFIG.ROL_ID_DOCENTE });
+  btn.disabled = false; btn.textContent = 'Crear cuenta';
+  if (!r.ok) { const box = $('#signupError'); box.textContent = errMsg(r, 'No se pudo crear la cuenta (código ' + r.status + ').'); box.hidden = false; return; }
+  $('#loginCorreo').value = c.value.trim(); e.target.reset(); setTab('login');
+  const info = $('#loginInfo'); info.textContent = 'Cuenta creada. Ahora inicia sesión con tu correo y tu contraseña.'; info.hidden = false;
+  $('#loginPass').focus();
+});
+
+/* ==========================================================================
+   Navegación
+   ========================================================================== */
+const TITLES = {
+  carreras:    ['Carreras y cortes', 'Crea carreras, grupos y cortes académicos (2026-1, 2026-2)'],
+  docentes:    ['Docentes', 'Sube el listado y se crean las cuentas automáticamente'],
+  dashboard:   ['Panel general', 'Vista consolidada de asistencias e inasistencias por carrera y grupo'],
+  asistencia:  ['Planilla de asistencia', 'Selecciona el grupo, marca la asistencia tipo Excel y guarda los cambios'],
+  materias:    ['Materias', 'Asignaturas registradas en el sistema'],
+  estudiantes: ['Gestión de estudiantes y grupos', 'Sube listados por carrera y grupo para los docentes'],
+  alertas:     ['Alertas tempranas', 'Estudiantes que ya llegaron a ' + CONFIG.RIESGO.alerta + ' inasistencias'],
+  reportes:    ['Reportes', 'Reporte consolidado generado por el servidor'],
+  usuarios:    ['Registrar usuario', 'Crea cuentas de coordinador o docente'],
+  permisos:    ['Matriz de permisos', 'Qué ve y qué edita cada rol']
+};
+function titleFor(v) {
+  if (v === 'dashboard' && role() === 'docente') return ['Mi panel', 'Resumen de asistencia de tus grupos'];
+  if (v === 'asistencia' && !can('asistencia', 'editar')) return ['Consulta de planillas', 'Registros de asistencia por carrera y grupo'];
+  if (v === 'estudiantes' && !can('estudiantes', 'editar')) return ['Estudiantes', 'Listado de estudiantes por carrera y grupo'];
+  if (v === 'materias' && !can('materias', 'editar')) return ['Materias', 'Asignaturas registradas en el sistema'];
+  return TITLES[v];
+}
+function route() {
+  if (!state.auth) return;
+  const key = location.hash.replace('#/', '') || 'dashboard';
+  let view = TITLES[key] ? key : 'dashboard';
+  if (!can(view, 'ver')) {
+    const first = MODULES.find(m => TITLES[m.key] && can(m.key, 'ver'));
+    if (!first) {
+      $$('.view').forEach(v => { v.hidden = true; });
+      $('#vTitle').textContent = 'Sin acceso'; $('#vSub').textContent = 'Tu rol no tiene módulos habilitados. Pide acceso al equipo de desarrollo.'; return;
+    }
+    view = first.key;
+    if (location.hash !== '#/' + view) { location.hash = '#/' + view; return; }
+  }
+  $$('.view').forEach(v => { v.hidden = v.id !== 'view-' + view; });
+  $$('.dock a').forEach(a => { if (a.dataset.route === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  const t = titleFor(view); $('#vTitle').textContent = t[0]; $('#vSub').textContent = t[1];
+  document.title = t[0] + ' | Kairós';
+  $('#content').scrollTop = 0;
+}
+window.addEventListener('hashchange', route);
+const closeLogsIfSmall = () => { if (window.innerWidth < 900) setLogs(false); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLogsIfSmall(); closeNotifs(); } });
+window.addEventListener('resize', () => { if (state.auth) closeLogsIfSmall(); });
+
+/* ==========================================================================
+   Normalizadores con soporte de Carrera y Grupo
+   ========================================================================== */
+function normEst(e) {
+  const doc = pick(e, ['documento', 'identificacion', 'cedula']);
+  const meta = doc ? getMetaMap()[String(doc).trim()] : null;
+  const carrera = pick(e, ['carrera', 'programa', 'nombre_carrera', 'career']) || (meta && meta.carrera) || DEF_CARRERA;
+  const grupo = pick(e, ['grupo', 'nombre_grupo', 'curso', 'group']) || (meta && meta.grupo) || DEF_GRUPO;
+  return {
+    id: pick(e, ['id', 'id_estudiante', 'idEstudiante', 'pk_estudiante', 'id_estudiantes']),
+    nombre: pick(e, ['nombre', 'nombre_completo', 'nombre_estudiante', 'name']),
+    documento: doc,
+    correo: pick(e, ['correo', 'email', 'correo_institucional']),
+    matricula: pick(e, ['fk_matricula', 'matricula', 'id_matricula']),
+    carrera: String(carrera).trim(),
+    grupo: String(grupo).trim(),
+    periodo: String(pick(e, ['periodo', 'corte', 'semestre']) || (meta && meta.periodo) || '').trim()
+  };
+}
+const normMat = m => ({
+  id: pick(m, ['id', 'id_materia', 'idMateria', 'pk_materia']),
+  nombre: pick(m, ['nombre', 'nombre_materia', 'name']),
+  codigo: pick(m, ['codigo', 'code', 'codigo_materia']),
+  creditos: pick(m, ['creditos', 'credits'])
+});
+const normAsis = a => ({
+  id: pick(a, ['id', 'id_asistencia']),
+  est: pick(a, ['fk_estudiante', 'id_estudiante', 'estudiante_id', 'estudiante']),
+  estado: String(pick(a, ['estado', 'status']) || ''),
+  fecha: pick(a, ['fecha', 'fecha_asistencia', 'created_at']),
+  doc: pick(a, ['fk_usuario', 'fk_docente', 'fk_profesor', 'id_usuario', 'id_docente', 'usuario_id', 'docente_id']),
+  docNombre: pick(a, ['docente', 'docente_nombre', 'nombre_docente', 'nombre_usuario', 'profesor'])
+});
+const estadoKey = s => { const p = plain(s); return p.startsWith('ausen') ? 'ausente' : p.startsWith('pres') ? 'presente' : p.startsWith('just') ? 'justificada' : p; };
+const findEst = id => id == null ? null : state.estudiantes.find(s => String(s.id) === String(id));
+const nameOf = id => { const e = findEst(id); return e && e.nombre ? e.nombre : (id != null ? 'Estudiante #' + id : 'Estudiante'); };
+
+/* Catálogo de Carreras y Grupos: los que ya tienen estudiantes visibles + los creados en el módulo Carreras */
+function getCatalogs() {
+  const cat = getCat(), base = state.estVis, es = (a, b) => a.localeCompare(b, 'es');
+  const carreras = [...new Set([...base.map(s => s.carrera), ...cat.carreras].filter(Boolean))].sort(es);
+  const gruposByCarrera = {};
+  const add = (c, g) => { if (!g) return; (gruposByCarrera[c || DEF_CARRERA] = gruposByCarrera[c || DEF_CARRERA] || new Set()).add(g); };
+  base.forEach(s => add(s.carrera, s.grupo));
+  cat.grupos.filter(g => !state.periodo || !g.periodo || g.periodo === state.periodo).forEach(g => add(g.carrera, g.grupo));
+  const allGrupos = [...new Set(Object.values(gruposByCarrera).flatMap(x => [...x]))].sort(es);
+  return { carreras, gruposByCarrera, allGrupos };
+}
+
+function syncFilterSelects() {
+  const { carreras, gruposByCarrera, allGrupos } = getCatalogs();
+
+  // Datalists para formularios de carga
+  /* Solo se reescribe un <select> si cambió su contenido: así no se cierra el desplegable cada vez que llegan datos nuevos */
+  const setHtml = (el, html) => { if (el.dataset.sig === html) return false; el.innerHTML = html; el.dataset.sig = html; return true; };
+  setHtml($('#carrerasList'), carreras.map(c => `<option value="${esc(c)}">`).join(''));
+  setHtml($('#gruposList'), allGrupos.map(g => `<option value="${esc(g)}">`).join(''));
+
+  // Selectores de Carrera en Dashboard, Planilla, Estudiantes y Alertas
+  [
+    ['#dashCarrera', '#dashGrupo', 'Todas las carreras', 'Todos los grupos'],
+    ['#planCarrera', '#planGrupo', 'Todas las carreras', 'Todos los grupos'],
+    ['#estFilterCarrera', '#estFilterGrupo', 'Todas las carreras', 'Todos los grupos'],
+    ['#alertCarrera', '#alertGrupo', 'Todas las carreras', 'Todos los grupos']
+  ].forEach(([cSel, gSel, cAll, gAll]) => {
+    const cEl = $(cSel), gEl = $(gSel);
+    const curC = cEl.value, curG = gEl.value;
+    if (setHtml(cEl, `<option value="">${cAll}</option>` + carreras.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join(''))) { if (carreras.includes(curC)) cEl.value = curC; }
+
+    const validGrupos = cEl.value && gruposByCarrera[cEl.value]
+      ? [...gruposByCarrera[cEl.value]].sort((a, b) => a.localeCompare(b, 'es'))
+      : allGrupos;
+    if (setHtml(gEl, `<option value="">${gAll}</option>` + validGrupos.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join(''))) { if (validGrupos.includes(curG)) gEl.value = curG; }
+  });
+
+  // Materias en planilla
+  const matSel = $('#planMateriaSelect'), prevM = matSel.value;
+  if (setHtml(matSel, '<option value="">Sin especificar</option>' + state.materias.map(m => `<option value="${esc(m.id ?? m.codigo ?? '')}">${esc(m.codigo ?? '')}${m.codigo ? ' · ' : ''}${esc(m.nombre ?? '')}</option>`).join(''))) { if (prevM) matSel.value = prevM; }
+}
+
+/* Recalcula inasistencias y estado de hoy.
+   - Por estudiante y por DÍA cuenta solo el último registro (si el docente se equivoca y corrige, la falta deja de contar).
+   - Las faltas se cuentan solo dentro del corte elegido arriba (2026-1, 2026-2...). Cada corte empieza en cero.
+   state.eff = registros efectivos; state.estVis = estudiantes visibles (corte y, para docentes, sus grupos). */
+function recompute() {
+  const hoy = {}, fm = {}, eff = [], tk = dayKey(new Date()), best = new Map();
+  state.asistencias.forEach((a, i) => {
+    if (a.est == null) return;
+    const id = String(a.est), d = parseDate(a.fecha);
+    if (d && dayKey(d) === tk && (!hoy[id] || d >= hoy[id].d)) hoy[id] = { d, estado: a.estado };
+    if (state.periodo && d && periodoDeFecha(d) !== state.periodo) return;
+    const key = d ? id + '|' + dayKey(d) : id + '|?' + i, cur = best.get(key);
+    if (!cur || !d || !cur.d || d >= cur.d) best.set(key, { a, d, id });
+  });
+  best.forEach(({ a, id }) => {
+    eff.push(a);
+    const k = estadoKey(a.estado);
+    if (k === 'ausente' || (CONFIG.CUENTA_JUSTIFICADAS && k === 'justificada')) fm[id] = (fm[id] || 0) + 1;
+  });
+  const grp = misGrupos();
+  state.estVis = state.estudiantes.filter(s => (!state.periodo || !s.periodo || s.periodo === state.periodo) && (!grp || grp.has(plain(s.grupo))));
+  state.fm = fm; state.hoy = hoy; state.eff = eff;
+}
+const faltasOf = id => state.fm[String(id)] || 0;
+const levelOfId = id => levelByFaltas(faltasOf(id));
+const tint = (name, id) => { const lv = levelOfId(id); return lv === 'ok' ? esc(name) : `<span class="tint" data-lv="${lv}" title="${faltasOf(id)} inasistencias">${esc(name)}</span>`; };
+
+function normAlert(a) {
+  const id = pick(a, ['fk_estudiante', 'id_estudiante', 'estudiante_id', 'idEstudiante', 'id']);
+  const e = findEst(id);
+  const nombre = pick(a, ['nombre', 'nombre_estudiante', 'nombre_completo', 'estudiante']) ?? (e && e.nombre) ?? (id != null ? 'Estudiante #' + id : 'Estudiante');
+  let faltas = pick(a, ['faltas', 'total_faltas', 'inasistencias', 'ausencias', 'cantidad_faltas', 'cantidad', 'total', 'conteo']);
+  faltas = faltas !== undefined && !isNaN(Number(faltas)) ? Number(faltas) : (id != null && state.fm[String(id)] !== undefined ? state.fm[String(id)] : undefined);
+  const t = plain(pick(a, ['nivel', 'nivel_riesgo', 'prioridad', 'severidad', 'tipo']));
+  let nivel = t.includes('crit') ? 'crit' : t.includes('alt') ? 'high' : t.includes('med') ? 'mid' : (t.includes('baj') || t.includes('norm')) ? 'ok' : null;
+  if (!nivel) { const lv = faltas !== undefined ? levelByFaltas(faltas) : 'mid'; nivel = lv === 'ok' ? 'mid' : lv; }
+  return {
+    id, nombre: String(nombre), faltas, nivel,
+    carrera: e ? e.carrera : DEF_CARRERA,
+    grupo: e ? e.grupo : DEF_GRUPO,
+    mensaje: pick(a, ['mensaje', 'descripcion', 'detalle', 'motivo']),
+    fecha: pick(a, ['fecha', 'fecha_alerta', 'ultima_falta', 'created_at', 'fecha_creacion'])
+  };
+}
+function alertsAll() {
+  const out = new Map();
+  Object.entries(state.fm).forEach(([id, f]) => {
+    if (f >= CONFIG.RIESGO.alerta) {
+      const e = findEst(id);
+      out.set(id, { id, nombre: nameOf(id), faltas: f, nivel: levelByFaltas(f), carrera: e ? e.carrera : DEF_CARRERA, grupo: e ? e.grupo : DEF_GRUPO });
+    }
+  });
+  state.alertas.map(normAlert).forEach(a => {
+    const key = a.id != null ? String(a.id) : 'n:' + a.nombre, cur = out.get(key);
+    if (cur) { cur.mensaje = a.mensaje || cur.mensaje; cur.fecha = a.fecha || cur.fecha; } else if (!(findEst(a.id) && state.periodo)) out.set(key, a);   /* con corte elegido, manda el conteo por corte, no el total histórico del servidor */
+  });
+  const vis = new Set(state.estVis.map(s => String(s.id)));
+  return [...out.values()].filter(a => { const e = findEst(a.id); return !e || vis.has(String(e.id)); }).sort((a, b) => (b.faltas ?? 0) - (a.faltas ?? 0) || a.nombre.localeCompare(b.nombre));
+}
+const alertKey = a => `${a.id ?? a.nombre}:${a.faltas ?? ''}`;
+function alertText(a) {
+  if (a.faltas !== undefined) { const w = a.faltas === 1 ? 'inasistencia' : 'inasistencias'; return a.faltas === CONFIG.RIESGO.alerta ? `llegó a ${a.faltas} ${w}` : `acumula ${a.faltas} ${w}`; }
+  return a.mensaje || 'tiene una alerta temprana';
+}
+
+/* ==========================================================================
+   Carga de datos
+   ========================================================================== */
+async function loadList(key, path, assign, quiet) {
+  const sid = state.sid;
+  if (!quiet) state.status[key] = 'loading';
+  const r = await api('GET', path, undefined, quiet);
+  if (sid !== state.sid) return false;
+  if (r.ok) { assign(extractList(r.data)); state.status[key] = 'ok'; state.errors[key] = ''; }
+  else if (!quiet) { state.status[key] = 'error'; state.errors[key] = errMsg(r, 'No se pudo cargar la lista (código ' + r.status + ').'); }
+  else return false;
+  renderAll();
+  return r.ok;
+}
+const loadEstudiantes = q => loadList('est', CONFIG.EP.estudiantes, l => { state.estudiantes = l.map(normEst); }, q);
+const loadMaterias    = q => loadList('mat', CONFIG.EP.materias,    l => { state.materias = l.map(normMat); }, q);
+const loadAsistencias = q => loadList('asis', CONFIG.EP.asistencias, l => { state.asistencias = l.map(normAsis); }, q);
+const loadAlertas     = q => loadList('alert', CONFIG.EP.alertas,    l => { state.alertas = l; }, q);
+const loadAll = () => Promise.all([loadEstudiantes(), loadMaterias(), loadAsistencias(), loadAlertas()]);
+let pollTimer = null;
+function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
+function startPolling() {
+  stopPolling();
+  pollTimer = setInterval(() => { if (state.auth && document.visibilityState === 'visible') { loadAsistencias(true); loadAlertas(true); } }, CONFIG.REFRESCO_SEG * 1000);
+}
+
+function stateRow(cols, key, hasRows, emptyText) {
+  const s = state.status[key];
+  if (s === 'error') return `<tr><td colspan="${cols}" class="state-msg err">${esc(state.errors[key])}</td></tr>`;
+  if ((s === 'idle' || s === 'loading') && !hasRows) return `<tr><td colspan="${cols}" class="state-msg">Cargando…</td></tr>`;
+  if (!hasRows) return `<tr><td colspan="${cols}" class="empty">${emptyText}</td></tr>`;
+  return '';
+}
+
+/* ==========================================================================
+   Notificaciones (campana)
+   ========================================================================== */
+function closeNotifs() { $('#notifPanel').hidden = true; $('#bellBtn').setAttribute('aria-expanded', 'false'); }
+function saveSeen() { store.set('kairosVistas', JSON.stringify([...state.seen].slice(-500))); }
+function renderNotifs() {
+  const list = alertsAll(), nuevas = list.filter(a => !state.seen.has(alertKey(a)));
+  const bc = $('#bellCount'); bc.textContent = nuevas.length > 9 ? '9+' : nuevas.length; bc.hidden = !nuevas.length;
+  $('#bellBtn').setAttribute('aria-label', nuevas.length ? `Notificaciones, ${nuevas.length} sin leer` : 'Notificaciones');
+  $('#notifList').innerHTML = list.length ? list.slice(0, 20).map(a => `
+    <li><button type="button" class="notif-item" data-key="${esc(alertKey(a))}" data-lv="${a.nivel}">
+      <span class="dot"></span>
+      <span class="txt"><b>${esc(a.nombre)}</b> ${esc(alertText(a))}<small>${esc(a.carrera)} · ${esc(a.grupo)}</small></span>
+      ${state.seen.has(alertKey(a)) ? '' : '<i class="new" aria-hidden="true"></i>'}
+    </button></li>`).join('') : '<li class="notif-empty">No hay alertas por ahora.</li>';
+}
+function checkNewAlerts() {
+  const ready = ['est', 'asis', 'alert'].every(k => state.status[k] === 'ok' || state.status[k] === 'error');
+  if (!ready) return;
+  const list = alertsAll(), keys = new Set(list.map(alertKey));
+  if (!state.alertsReady) {
+    state.alertsReady = true;
+    const unread = list.filter(a => !state.seen.has(alertKey(a))).length;
+    if (unread) toast(`${unread} ${unread === 1 ? 'estudiante está' : 'estudiantes están'} en alerta temprana.`, 'warn');
+  } else {
+    const nuevas = list.filter(a => !state.prevKeys.has(alertKey(a)));
+    nuevas.slice(0, 3).forEach(a => toast(`${a.nombre} ${alertText(a)}`, 'warn'));
+  }
+  state.prevKeys = keys;
+}
+$('#bellBtn').addEventListener('click', e => {
+  e.stopPropagation(); const open = $('#notifPanel').hidden;
+  $('#notifPanel').hidden = !open; $('#bellBtn').setAttribute('aria-expanded', String(open));
+});
+document.addEventListener('click', e => { if (!e.target.closest('.bell-wrap')) closeNotifs(); });
+$('#markAllRead').addEventListener('click', () => { alertsAll().forEach(a => state.seen.add(alertKey(a))); saveSeen(); renderNotifs(); });
+$('#notifAll').addEventListener('click', closeNotifs);
+$('#notifList').addEventListener('click', e => {
+  const b = e.target.closest('.notif-item'); if (!b) return;
+  state.seen.add(b.dataset.key); saveSeen(); renderNotifs(); closeNotifs(); location.hash = '#/alertas';
+});
+
+/* ==========================================================================
+   Dashboard con Profundización Jerárquica (Carrera -> Grupo)
+   ========================================================================== */
+function setDashDrill(carrera, grupo) {
+  state.dashCarrera = carrera || '';
+  state.dashGrupo = carrera ? (grupo || '') : '';
+  $('#dashCarrera').value = state.dashCarrera;
+  syncFilterSelects();
+  $('#dashGrupo').value = state.dashGrupo;
+  renderDashboard();
+}
+$('#dashCarrera').addEventListener('change', e => setDashDrill(e.target.value, ''));
+$('#dashGrupo').addEventListener('change', e => setDashDrill($('#dashCarrera').value, e.target.value));
+$('#crumbAll').addEventListener('click', () => setDashDrill('', ''));
+$('#crumbCarrera').addEventListener('click', () => setDashDrill(state.dashCarrera, ''));
+
+function updateBreadcrumbs() {
+  const c = state.dashCarrera, g = state.dashGrupo;
+  $('#crumbAll').classList.toggle('active', !c);
+  $('#crumbSep1').hidden = !c;
+  $('#crumbCarrera').hidden = !c;
+  if (c) {
+    $('#crumbCarrera').textContent = c;
+    $('#crumbCarrera').classList.toggle('active', !g);
+  }
+  $('#crumbSep2').hidden = !g;
+  $('#crumbGrupo').hidden = !g;
+  if (g) $('#crumbGrupo').textContent = g;
+}
+
+function getScopedData() {
+  const c = state.dashCarrera, g = state.dashGrupo;
+  const scopedEst = state.estVis.filter(s => (!c || s.carrera === c) && (!g || s.grupo === g));
+  const estIds = new Set(scopedEst.map(s => String(s.id)));
+  const scopedAsis = (!c && !g)
+    ? state.eff
+    : state.eff.filter(a => a.est != null && estIds.has(String(a.est)));
+  const scopedAlerts = alertsAll().filter(a => {
+    const e = findEst(a.id);
+    return (!c || (e ? e.carrera === c : a.carrera === c)) && (!g || (e ? e.grupo === g : a.grupo === g));
+  });
+  return { scopedEst, scopedAsis, scopedAlerts, estIds };
+}
+
+function smoothPath(pts) {
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0]},${p2[1]}`;
+  }
+  return d;
+}
+
+function drawLine(scopedAsis) {
+  const box = $('#lineBox'), weeks = {};
+  scopedAsis.forEach(a => {
+    const k = estadoKey(a.estado);
+    if (!(k === 'ausente' || (CONFIG.CUENTA_JUSTIFICADAS && k === 'justificada'))) return;
+    const d = parseDate(a.fecha); if (!d) return;
+    const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7));
+    (weeks[dayKey(x)] = weeks[dayKey(x)] || { date: x, value: 0 }).value++;
+  });
+  const data = Object.values(weeks).sort((a, b) => a.date - b.date).slice(-10).map(w => ({ label: `${w.date.getDate()} ${MESES[w.date.getMonth()]}`, value: w.value }));
+  const n = data.length;
+  if (!n) { box.innerHTML = `<p class="state-msg">${state.status.asis === 'error' ? esc(state.errors.asis) : 'Sin ausencias registradas en este filtro.'}</p>`; return; }
+  const peak = Math.max(...data.map(d => d.value));
+  const STEPS = [1, 2, 3, 4, 5, 10, 15, 20, 25, 50, 100, 250, 500];
+  const step = STEPS.find(s => s * 4 >= peak) || Math.ceil(peak / 4), max = step * 4;
+  const W = 520, H = 260, m = { l: 36, r: 16, t: 14, b: 28 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const x = i => n === 1 ? m.l + iw / 2 : m.l + (iw * i) / (n - 1), y = v => m.t + ih - (v / max) * ih;
+  const pts = data.map((d, i) => [Math.round(x(i)), Math.round(y(d.value))]);
+  const line = n > 1 ? smoothPath(pts) : '';
+  const area = n > 1 ? `${line} L${pts[n - 1][0]},${m.t + ih} L${pts[0][0]},${m.t + ih} Z` : '';
+  const ticks = [0, 1, 2, 3, 4].map(i => i * step);
+  box.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de líneas con las ausencias por semana">
+      <defs>
+        <linearGradient id="lineGrad" x1="0" x2="1"><stop offset="0" stop-color="#35b0b0"/><stop offset="1" stop-color="#e2b13c"/></linearGradient>
+        <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#35b0b0" stop-opacity=".28"/><stop offset="1" stop-color="#35b0b0" stop-opacity="0"/></linearGradient>
+      </defs>
+      <g class="axis">${ticks.map(t => `<line class="gridline" x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}"/><text x="${m.l - 8}" y="${y(t) + 4}" text-anchor="end">${t}</text>`).join('')}
+      ${data.map((d, i) => `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${esc(d.label)}</text>`).join('')}</g>
+      ${n > 1 ? `<path d="${area}" fill="url(#areaGrad)"/><path class="line-path" d="${line}"/>` : ''}
+      <line class="hover-line" id="hoverLine" x1="0" x2="0" y1="${m.t}" y2="${m.t + ih}"/>
+      ${pts.map((p, i) => `<circle class="dot" data-i="${i}" cx="${p[0]}" cy="${p[1]}" r="4"/>`).join('')}
+      <rect id="hitArea" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent"/>
+    </svg><div class="chart-tip" id="lineTip"></div>`;
+  const svg = $('svg', box), tip = $('#lineTip'), hl = $('#hoverLine'), dots = $$('.dot', box);
+  $('#hitArea').addEventListener('pointermove', e => {
+    const r = svg.getBoundingClientRect(), px = ((e.clientX - r.left) / r.width) * W;
+    const i = n === 1 ? 0 : Math.max(0, Math.min(n - 1, Math.round(((px - m.l) / iw) * (n - 1))));
+    dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    hl.setAttribute('x1', pts[i][0]); hl.setAttribute('x2', pts[i][0]); hl.style.opacity = 1;
+    tip.innerHTML = `<b>${data[i].value} ${data[i].value === 1 ? 'ausencia' : 'ausencias'}</b> <span>semana del ${esc(data[i].label)}</span>`;
+    tip.style.left = (pts[i][0] / W) * r.width + 'px'; tip.style.top = (pts[i][1] / H) * r.height + 'px'; tip.style.opacity = 1;
+  });
+  $('#hitArea').addEventListener('pointerleave', () => { tip.style.opacity = 0; hl.style.opacity = 0; dots.forEach(d => d.classList.remove('on')); });
+}
+
+function drawDonut(scopedEst) {
+  const donut = $('#donut'), legend = $('#legend'), counts = { crit: 0, high: 0, mid: 0, ok: 0 }, keys = ['crit', 'high', 'mid', 'ok'];
+  const ids = scopedEst.map(e => String(e.id));
+  ids.forEach(id => { counts[levelByFaltas(state.fm[id] || 0)]++; });
+  const total = ids.length;
+  $('#donutDesc').textContent = `Alerta temprana desde ${CONFIG.RIESGO.alerta} inasistencias`;
+  if (!total) { donut.innerHTML = ''; donut.style.height = 'auto'; legend.innerHTML = `<p class="state-msg" style="grid-column:1/-1">Sin estudiantes en el filtro seleccionado.</p>`; return; }
+  donut.style.height = '';
+  const atRisk = total - counts.ok, R = 70, C = 2 * Math.PI * R, visible = keys.filter(k => counts[k] > 0), gap = visible.length > 1 ? 3 : 0;
+  let off = 0;
+  const arcs = visible.map(k => {
+    const len = Math.max(0, (counts[k] / total) * C - gap);
+    const el = `<circle class="seg-arc" data-k="${k}" cx="90" cy="90" r="${R}" style="stroke:${LEVELS[k].color}" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}"/>`;
+    off += (counts[k] / total) * C; return el;
+  }).join('');
+  donut.innerHTML = `<svg viewBox="0 0 180 180" role="img" aria-label="Gráfico de dona con los estudiantes por nivel de riesgo">${arcs}</svg><div class="donut-center"><b id="dcVal"></b><span id="dcLbl"></span></div>`;
+  legend.innerHTML = keys.map(k => `<button type="button" data-k="${k}"><i style="background:${LEVELS[k].color}"></i><span class="l-name">${LEVELS[k].label}</span><span class="l-val">${nf.format(counts[k])}</span></button>`).join('');
+  const center = k => {
+    if (!k) { $('#dcVal').textContent = (atRisk / total * 100).toFixed(1).replace('.', ',') + '%'; $('#dcLbl').textContent = 'en riesgo'; }
+    else { $('#dcVal').textContent = nf.format(counts[k]); $('#dcLbl').textContent = 'nivel ' + LEVELS[k].label.toLowerCase(); }
+  };
+  const focus = k => {
+    donut.classList.toggle('hovering', !!k);
+    $$('.seg-arc', donut).forEach(a => a.classList.toggle('on', a.dataset.k === k));
+    $$('#legend button').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+    center(k);
+  };
+  center(null);
+  [...$$('.seg-arc', donut), ...$$('#legend button')].forEach(el => {
+    el.addEventListener('pointerenter', () => focus(el.dataset.k)); el.addEventListener('pointerleave', () => focus(null));
+  });
+}
+
+/* Desglose interactivo por Carrera -> Grupo */
+function renderBreakdown() {
+  const card = $('#breakdownCard'), listEl = $('#breakdownList');
+  const c = state.dashCarrera, g = state.dashGrupo;
+  if (!state.estVis.length) { card.hidden = true; return; }
+  card.hidden = false;
+
+  if (g) {
+    // Ya estamos en un grupo específico: mostrar botón para volver a los grupos de la carrera
+    $('#bkTitle').textContent = `Detalle del grupo ${g} · ${c}`;
+    $('#bkDesc').textContent = 'Estás viendo el nivel más detallado. Usa las migas de pan para subir de nivel.';
+    const ests = state.estVis.filter(s => s.carrera === c && s.grupo === g);
+    const riskN = ests.filter(s => faltasOf(s.id) >= CONFIG.RIESGO.alerta).length;
+    listEl.innerHTML = `<button type="button" class="bk-row" data-up="1">
+      <div><div class="bk-name">← Volver a todos los grupos de ${esc(c)}</div><div class="bk-sub">${ests.length} estudiantes en ${esc(g)}</div></div>
+      <div class="bk-bar-wrap"><div class="bk-track"><div class="bk-fill-ok" style="width:${ests.length ? ((ests.length - riskN) / ests.length * 100) : 100}%"></div><div class="bk-fill-risk" style="width:${ests.length ? (riskN / ests.length * 100) : 0}%"></div></div></div>
+      <div class="bk-stats"><span class="badge ${riskN ? 'crit' : 'ok'}">${riskN} en riesgo</span></div>
+    </button>`;
+    $('[data-up]', listEl).addEventListener('click', () => setDashDrill(c, ''));
+    return;
+  }
+
+  const modeGroup = !!c;
+  $('#bkTitle').textContent = modeGroup ? `Grupos de ${c}` : 'Resumen comparativo por carrera';
+  $('#bkDesc').textContent = modeGroup
+    ? 'Haz clic en un grupo para filtrar sus estadísticas y estudiantes.'
+    : 'Haz clic en una carrera para ver el desglose de sus grupos.';
+
+  const buckets = {};
+  state.estVis.filter(s => !c || s.carrera === c).forEach(s => {
+    const key = modeGroup ? s.grupo : s.carrera;
+    if (!buckets[key]) buckets[key] = { name: key, estIds: new Set(), risk: 0 };
+    buckets[key].estIds.add(String(s.id));
+    if (faltasOf(s.id) >= CONFIG.RIESGO.alerta) buckets[key].risk++;
+  });
+
+  Object.values(buckets).forEach(b => {
+    const as = state.eff.filter(a => a.est != null && b.estIds.has(String(a.est)));
+    const pres = as.filter(a => estadoKey(a.estado) === 'presente').length;
+    b.totalAsis = as.length;
+    b.asisPct = as.length ? Math.round((pres / as.length) * 100) : null;   /* null = todavía sin registros */
+    b.totalEst = b.estIds.size;
+  });
+
+  const sorted = Object.values(buckets).sort((a, b) => b.risk - a.risk || (a.asisPct ?? 101) - (b.asisPct ?? 101));
+  listEl.innerHTML = sorted.map(b => `
+    <button type="button" class="bk-row" data-drill="${esc(b.name)}">
+      <div>
+        <div class="bk-name">${esc(b.name)}</div>
+        <div class="bk-sub">${b.totalEst} ${b.totalEst === 1 ? 'estudiante' : 'estudiantes'} · ${b.totalAsis} registros</div>
+      </div>
+      <div class="bk-bar-wrap">
+        <div class="bk-track" title="${b.asisPct == null ? 'Sin registros' : 'Asistencia ' + b.asisPct + '%'}">
+          ${b.asisPct == null ? '' : `<div class="bk-fill-ok" style="width:${b.asisPct}%"></div><div class="bk-fill-risk" style="width:${100 - b.asisPct}%"></div>`}
+        </div>
+      </div>
+      <div class="bk-stats">
+        ${b.asisPct == null ? '<span class="cell-sub">Sin registros</span>' : `<span style="color:var(--ok);font-weight:700">${b.asisPct}% asist.</span>`}
+        <span class="badge ${b.risk ? 'crit' : 'ok'}">${b.risk} en riesgo</span>
+      </div>
+    </button>
+  `).join('');
+
+  $$('[data-drill]', listEl).forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (modeGroup) setDashDrill(c, btn.dataset.drill);
+      else setDashDrill(btn.dataset.drill, '');
+    });
+  });
+}
+
+function renderCoord() {
+  const card = $('#coordCard'); card.hidden = role() === 'docente'; if (card.hidden) return;
+  const groups = {};
+  state.asistencias.forEach(a => {
+    const k = a.docNombre ?? (a.doc != null ? 'Docente #' + a.doc : null); if (!k) return;
+    const g = groups[k] = groups[k] || { n: 0, aus: 0, last: null };
+    g.n++; if (estadoKey(a.estado) === 'ausente') g.aus++;
+    const d = parseDate(a.fecha); if (d && (!g.last || d > g.last)) g.last = d;
+  });
+  const rows = Object.entries(groups).sort((a, b) => b[1].n - a[1].n);
+  $('#docBody').innerHTML = rows.length ? rows.map(([k, g]) => `<tr><td class="cell-main">${esc(k)}</td><td class="num">${nf.format(g.n)}</td><td class="num">${nf.format(g.aus)}</td><td class="mono">${g.last ? esc(fmtDate(g.last.toISOString())) : '—'}</td></tr>`).join('')
+    : `<tr><td colspan="4" class="empty">${state.status.asis === 'ok' ? 'Los registros actuales aún no incluyen identificador de docente.' : 'Cargando…'}</td></tr>`;
+}
+
+function renderDashboard() {
+  updateBreadcrumbs();
+  const { scopedEst, scopedAsis, scopedAlerts, estIds } = getScopedData();
+  const total = scopedEst.length;
+  const pres = scopedAsis.filter(a => estadoKey(a.estado) === 'presente').length;
+  const pct = (n, d) => (n / d * 100).toFixed(1).replace('.', ',') + '%';
+  const estOk = state.status.est === 'ok', asisOk = state.status.asis === 'ok';
+
+  $('#kTotal').textContent = estOk ? nf.format(total) : '—';
+  $('#kTotalSub').textContent = estOk ? (state.dashGrupo ? `en grupo ${state.dashGrupo}` : state.dashCarrera ? `en ${state.dashCarrera}` : 'en toda la institución') : ' ';
+  $('#kCrit').textContent = estOk && asisOk ? nf.format(scopedAlerts.filter(a => a.nivel === 'crit').length) : '—';
+  $('#kCritSub').textContent = estOk && asisOk ? `de ${nf.format(scopedAlerts.length)} en alerta temprana` : ' ';
+  $('#kRiesgo').textContent = estOk && asisOk && total ? pct(scopedAlerts.length, total) : '—';
+  $('#kRiesgoSub').textContent = estOk && asisOk && total ? `${nf.format(scopedAlerts.length)} con ≥ ${CONFIG.RIESGO.alerta} faltas` : ' ';
+  $('#kAsis').textContent = asisOk && scopedAsis.length ? pct(pres, scopedAsis.length) : '—';
+  $('#kAsisSub').textContent = asisOk && scopedAsis.length ? `${nf.format(pres)} presentes de ${nf.format(scopedAsis.length)}` : ' ';
+
+  const rows = Object.entries(state.fm)
+    .filter(([id]) => estIds.has(String(id)) && state.fm[id] > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 7);
+  const empty = stateRow(5, 'asis', rows.length, 'Sin ausencias registradas en este filtro.');
+  $('#rankBody').innerHTML = empty || rows.map(([id, f], i) => {
+    const lv = levelByFaltas(f), e = findEst(id);
+    return `<tr data-lv="${lv}">
+      <td class="rank">${i + 1}</td>
+      <td><div class="cell-main">${tint(nameOf(id), id)}</div><div class="cell-sub mono">ID ${esc(id)}</div></td>
+      <td><span class="tag-pill">${esc(e ? e.carrera : '—')} · ${esc(e ? e.grupo : '—')}</span></td>
+      <td><div class="meter"><div class="meter-track"><div class="meter-fill" style="width:${Math.min(100, f / CONFIG.RIESGO.critico * 100)}%;background:${LEVELS[lv].color}"></div></div><span class="meter-val">${f}</span></div></td>
+      <td>${badge(lv)}</td>
+    </tr>`;
+  }).join('');
+
+  drawLine(scopedAsis);
+  drawDonut(scopedEst);
+  renderBreakdown();
+  renderCoord();
+}
+$('#refreshAll').addEventListener('click', async () => { await loadAll(); toast('Datos actualizados'); });
+
+/* ==========================================================================
+   Asistencia: Planilla tipo Excel con guardado en lote
+   ========================================================================== */
+function getFilteredPlanStudents() {
+  const c = $('#planCarrera').value, g = $('#planGrupo').value, q = $('#planSearch').value.trim().toLowerCase();
+  let list = state.estVis.filter(s =>
+    (!c || s.carrera === c) &&
+    (!g || s.grupo === g) &&
+    (!q || [s.nombre, s.documento, s.id].some(v => v != null && String(v).toLowerCase().includes(q)))
+  );
+  if (state.planOnly) list = list.filter(s => faltasOf(s.id) >= CONFIG.RIESGO.alerta);
+  return list.sort((a, b) => String(a.nombre ?? '').localeCompare(String(b.nombre ?? ''), 'es'));
+}
+
+function updateDirtyBar() {
+  const count = Object.keys(state.draftAsis).length;
+  const bar = $('#dirtyBar'), btnSave = $('#saveBatchBtn'), btnDisc = $('#discardChanges');
+  bar.classList.toggle('has-dirty', count > 0);
+  btnSave.disabled = state.saving || count === 0 || !canMark();
+  btnDisc.hidden = count === 0;
+  if (count > 0) {
+    $('#dirtyStatus').textContent = `${count} ${count === 1 ? 'estudiante marcado' : 'estudiantes marcados'} sin guardar`;
+    $('#dirtyHint').textContent = 'Revisa la planilla y pulsa "Guardar cambios" para enviar todo a la base de datos.';
+    btnSave.textContent = `Guardar cambios (${count})`;
+  } else {
+    $('#dirtyStatus').textContent = 'Sin cambios pendientes por guardar';
+    $('#dirtyHint').textContent = 'Haz clic en Presente, Ausente o Justificada en cada fila.';
+    btnSave.textContent = 'Guardar cambios';
+  }
+}
+
+function renderPlanilla() {
+  /* Quien no puede marcar asistencia (rol de solo consulta, o un corte anterior) no ve botones, barra de guardado ni la columna de marcado */
+  const ro = !canMark();
+  const nota = can('asistencia', 'editar') && !corteActual();
+  $('#planLock').hidden = !nota;
+  if (nota) $('#planLock').textContent = `Estás viendo el corte ${state.periodo}. La planilla solo se edita en el corte actual (${periodoDeFecha(new Date())}).`;
+  $('#markAllPresent').hidden = ro;
+  $('#dirtyBar').hidden = ro;
+  $('#thMarcar').hidden = ro;
+  $('#planOnly').setAttribute('aria-pressed', String(state.planOnly));
+
+  const list = getFilteredPlanStudents();
+  const marcadosHoy = list.filter(s => state.hoy[String(s.id)]).length;
+  $('#planCount').textContent = state.status.est === 'ok'
+    ? `Mostrando ${list.length > 300 ? '300 de ' + list.length : list.length} estudiantes · ${marcadosHoy} ya tienen registro de hoy${list.length > 300 ? '. Usa los filtros para ver el resto' : ''}`
+    : 'Cargando listado de estudiantes...';
+
+  const cols = ro ? 5 : 6;
+  const empty = stateRow(cols, 'est', list.length, state.planOnly ? 'Ningún estudiante de este grupo está en alerta.' : 'No hay estudiantes en este filtro. El coordinador debe cargar el listado.');
+  $('#planBody').innerHTML = empty || list.slice(0, 300).map((s, idx) => {
+    const id = String(s.id);
+    const f = faltasOf(id), lv = levelByFaltas(f);
+    const hoy = state.hoy[id];
+    const draft = state.draftAsis[id];
+    const activeVal = draft || '';
+    const ek = hoy ? estadoKey(hoy.estado) : '';
+    const tone = { presente: 'ok', ausente: 'crit', justificada: 'high' }[ek] || 'mid';
+
+    return `<tr data-lv="${lv}" class="${draft ? 'is-dirty' : ''}">
+      <td class="excel-row-num">${idx + 1}</td>
+      <td>
+        <div class="cell-main">${tint(s.nombre ?? 'Estudiante ' + id, id)}</div>
+        <div class="cell-sub mono">Doc: ${esc(s.documento ?? '—')} · ID ${esc(id)}</div>
+      </td>
+      <td><span class="tag-pill">${esc(s.carrera)} · ${esc(s.grupo)}${s.periodo ? ' · ' + esc(s.periodo) : ''}</span></td>
+      <td>${f ? `<span class="badge ${lv}">${f} ${f === 1 ? 'falta' : 'faltas'}</span>` : '<span class="cell-sub">0</span>'}</td>
+      <td>
+        ${draft ? `<span class="badge pend">Pendiente: ${esc(draft)}</span>` : hoy ? `<span class="badge ${tone}">${esc(hoy.estado)}</span>` : '<span class="cell-sub">Sin marcar hoy</span>'}
+      </td>
+      ${ro ? '' : `<td>
+        <div class="xl-seg" role="group" aria-label="Asistencia de ${esc(s.nombre)}">
+          <button type="button" class="xl-btn" data-id="${esc(id)}" data-val="Presente" aria-pressed="${activeVal === 'Presente'}">Presente</button>
+          <button type="button" class="xl-btn" data-id="${esc(id)}" data-val="Ausente" aria-pressed="${activeVal === 'Ausente'}">Ausente</button>
+          <button type="button" class="xl-btn" data-id="${esc(id)}" data-val="Justificada" aria-pressed="${activeVal === 'Justificada'}">Justificada</button>
+        </div>
+      </td>`}
+    </tr>`;
+  }).join('');
+
+  updateDirtyBar();
+}
+
+$('#planCarrera').addEventListener('change', () => { syncFilterSelects(); renderPlanilla(); });
+$('#planGrupo').addEventListener('change', renderPlanilla);
+$('#planSearch').addEventListener('input', renderPlanilla);
+$('#planOnly').addEventListener('click', () => { state.planOnly = !state.planOnly; renderPlanilla(); });
+
+$('#planBody').addEventListener('click', e => {
+  const btn = e.target.closest('.xl-btn');
+  if (!btn || btn.disabled || !canMark()) return;
+  const id = btn.dataset.id, val = btn.dataset.val;
+  if (state.draftAsis[id] === val) delete state.draftAsis[id];
+  else state.draftAsis[id] = val;
+  renderPlanilla();
+  const again = $(`#planBody .xl-btn[data-id="${CSS.escape(id)}"][data-val="${val}"]`); if (again) again.focus();   /* el teclado no pierde el lugar */
+});
+
+$('#markAllPresent').addEventListener('click', () => {
+  if (!canMark()) return;
+  /* Solo a quienes aún no tienen marca: no pisa un Ausente ya elegido ni duplica registros de hoy */
+  const list = getFilteredPlanStudents().filter(s => !state.draftAsis[String(s.id)] && !state.hoy[String(s.id)]);
+  if (!list.length) { toast('No hay estudiantes sin marcar en este filtro.'); return; }
+  list.forEach(s => { state.draftAsis[String(s.id)] = 'Presente'; });
+  renderPlanilla();
+  toast(`${list.length} estudiantes sin marcar quedaron como Presente. Pulsa "Guardar cambios".`);
+});
+
+$('#discardChanges').addEventListener('click', () => {
+  state.draftAsis = {};
+  renderPlanilla();
+});
+
+$('#saveBatchBtn').addEventListener('click', async () => {
+  if (state.saving || !canMark()) return;
+  const entries = Object.entries(state.draftAsis);
+  if (!entries.length) return;
+
+  const duplicados = entries.filter(([id]) => state.hoy[id]);
+  if (duplicados.length) {
+    const ok = await askConfirm(
+      'Ya hay registros de hoy',
+      `${duplicados.length} ${duplicados.length === 1 ? 'estudiante ya tiene' : 'estudiantes ya tienen'} asistencia registrada hoy. El nuevo estado reemplaza al anterior en el conteo de faltas. ¿Guardar de todos modos?`,
+      'Guardar todos'
+    );
+    if (!ok) return;
+  }
+
+  const sid = state.sid, btn = $('#saveBatchBtn'), stamp = localStamp();
+  state.saving = true; btn.disabled = true; $('#discardChanges').disabled = true; $('#markAllPresent').disabled = true;
+  btn.textContent = `Guardando (0/${entries.length})...`;
+  $('#planError').textContent = '';
+
+  let okCount = 0, failCount = 0, done = 0, aborted = false;
+  const queue = [...entries];
+  const worker = async () => {                         /* 4 envíos a la vez en lugar de uno por uno */
+    while (queue.length && !aborted) {
+      const [id, estado] = queue.shift();
+      const payload = { fk_estudiante: parseInt(id, 10), estado, fecha: stamp };
+      if (CONFIG.ASISTENCIA_EXTRAS.materia && $('#planMateriaSelect').value) payload.fk_materia = $('#planMateriaSelect').value;
+      const r = await api('POST', CONFIG.EP.asistencias, payload, true);
+      if (sid !== state.sid) { aborted = true; return; }            /* se cerró la sesión mientras se guardaba */
+      if (r.ok) { okCount++; delete state.draftAsis[id]; state.asistencias.push({ id: null, est: String(id), estado, fecha: stamp }); }
+      else { failCount++; if (r.net || r.status === 401) aborted = true; }
+      done++; btn.textContent = `Guardando (${done}/${entries.length})...`;
+    }
+  };
+  await Promise.all([worker(), worker(), worker(), worker()]);
+  state.saving = false; $('#discardChanges').disabled = false; $('#markAllPresent').disabled = false;
+  if (sid !== state.sid) return;
+
+  renderAll();
+  const pend = Object.keys(state.draftAsis).length;
+  if (!failCount && !pend) {
+    toast(`Planilla guardada: ${okCount} ${okCount === 1 ? 'registro enviado' : 'registros enviados'}.`);
+    loadAsistencias(true); loadAlertas(true);
+  } else {
+    if (okCount) { loadAsistencias(true); loadAlertas(true); }
+    $('#planError').textContent = `Se guardaron ${okCount} y quedaron ${pend} sin guardar (${failCount} fallaron). Revisa la conexión y vuelve a pulsar "Guardar cambios".`;
+  }
+});
+
+function renderAsistencias() {
+  const r = state.asistencias, tone = { presente: 'ok', ausente: 'crit', justificada: 'high' };
+  $('#stTotal').textContent = nf.format(r.length);
+  $('#stPres').textContent = nf.format(r.filter(x => estadoKey(x.estado) === 'presente').length);
+  $('#stAus').textContent = nf.format(r.filter(x => estadoKey(x.estado) === 'ausente').length);
+  $('#stJust').textContent = nf.format(r.filter(x => estadoKey(x.estado) === 'justificada').length);
+  const hasDoc = r.some(x => x.doc != null || x.docNombre != null);
+  $('#asisHead').innerHTML = `<tr><th>Fecha</th><th>Estudiante</th><th>Carrera · Grupo</th><th>Estado</th>${hasDoc ? '<th>Docente</th>' : ''}</tr>`;
+  const recent = [...r].sort((a, b) => (parseDate(b.fecha) || 0) - (parseDate(a.fecha) || 0)).slice(0, 30);
+  const empty = stateRow(hasDoc ? 5 : 4, 'asis', recent.length, 'Aún no hay asistencias registradas.');
+  $('#asisBody').innerHTML = empty || recent.map(x => {
+    const e = findEst(x.est);
+    return `<tr>
+      <td class="mono">${esc(fmtDate(x.fecha))}</td>
+      <td class="cell-main">${tint(nameOf(x.est), x.est)}</td>
+      <td><span class="tag-pill">${esc(e ? e.carrera : '—')} · ${esc(e ? e.grupo : '—')}</span></td>
+      <td><span class="badge ${tone[estadoKey(x.estado)] || 'mid'}">${esc(x.estado || '—')}</span></td>
+      ${hasDoc ? `<td>${esc(x.docNombre ?? 'Docente #' + x.doc)}</td>` : ''}
+    </tr>`;
+  }).join('');
+}
+$('#refreshAsis').addEventListener('click', async () => { if (await loadAsistencias()) toast('Historial actualizado'); });
+
+/* ==========================================================================
+   Materias
+   ========================================================================== */
+function renderMaterias() {
+  $('#matCount').textContent = state.status.mat === 'ok' ? state.materias.length + (state.materias.length === 1 ? ' materia' : ' materias') + ' en el sistema' : '';
+  const empty = stateRow(4, 'mat', state.materias.length, can('materias', 'editar') ? 'Aún no hay materias. Registra la primera con el formulario.' : 'Aún no hay materias registradas.');
+  $('#matBody').innerHTML = empty || state.materias.map(m => `<tr><td><span class="idchip">${esc(m.id ?? '—')}</span></td><td class="mono">${esc(m.codigo ?? '—')}</td><td class="cell-main">${esc(m.nombre ?? '—')}</td><td class="num">${esc(m.creditos ?? '—')}</td></tr>`).join('');
+}
+$('#refreshMat').addEventListener('click', async () => { if (await loadMaterias()) toast('Lista de materias actualizada'); });
+$('#formMateria').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!can('materias', 'editar')) return;
+  const form = e.currentTarget, n = $('#matNombre'), c = $('#matCodigo'), cr = $('#matCreditos');
+  formError(form, '');
+  if (!validate([[n, required('Escribe el nombre de la materia.')], [c, required('Escribe el código.')], [cr, required('Indica los créditos.')]])) return;
+  const r = await api('POST', CONFIG.EP.materias, { nombre: n.value.trim(), codigo: c.value.trim(), creditos: cr.value.trim() });
+  if (!r.ok) { formError(form, errMsg(r, 'No se pudo guardar la materia (código ' + r.status + ').')); return; }
+  toast('Materia guardada'); form.reset(); cr.value = '3'; n.focus(); loadMaterias();
+});
+
+/* ==========================================================================
+   Estudiantes y Carga Masiva por Coordinador (Excel/CSV)
+   ========================================================================== */
+$('#tabBulkEst').addEventListener('click', () => {
+  $('#tabBulkEst').setAttribute('aria-selected', 'true'); $('#tabSingleEst').setAttribute('aria-selected', 'false');
+  $('#panelBulkEst').hidden = false; $('#panelSingleEst').hidden = true;
+});
+$('#tabSingleEst').addEventListener('click', () => {
+  $('#tabBulkEst').setAttribute('aria-selected', 'false'); $('#tabSingleEst').setAttribute('aria-selected', 'true');
+  $('#panelBulkEst').hidden = true; $('#panelSingleEst').hidden = false;
+});
+
+function parseBulkLines(raw) {
+  const defCarrera = $('#bulkCarrera').value.trim() || DEF_CARRERA;
+  const defGrupo = $('#bulkGrupo').value.trim() || DEF_GRUPO;
+  const defPer = $('#bulkPeriodo').value.trim() || state.periodo || periodoDeFecha(new Date());
+  /* No se recorta la línea: si la primera celda (nombre) viene vacía, el recorte movería las columnas */
+  const lines = String(raw || '').replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim());
+  const rows = [], skipped = [], seen = new Set(state.estudiantes.map(s => String(s.documento ?? '').trim()).filter(Boolean));
+
+  lines.forEach((line, i) => {
+    const sep = line.includes('\t') ? '\t' : line.includes(';') ? ';' : ',';
+    const cols = line.split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
+    if (i === 0 && /^nombre/i.test(cols[0])) return;            /* encabezado */
+    if (cols.length < 2) { skipped.push(`Fila ${i + 1}: faltan columnas`); return; }
+
+    const nombre = cols[0], documento = cols[1];
+    if (!nombre || !documento) { skipped.push(`Fila ${i + 1}: falta nombre o documento`); return; }
+    if (!/^[A-Za-z0-9\-]{4,20}$/.test(documento)) { skipped.push(`Fila ${i + 1}: documento inválido "${documento}"`); return; }
+    if (seen.has(documento)) { skipped.push(`Fila ${i + 1}: el documento ${documento} ya existe o está repetido`); return; }
+    let correo = cols[2] || '';
+    if (correo.includes('@')) { if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { skipped.push(`Fila ${i + 1}: correo inválido`); return; } }
+    else correo = `${documento}@elpoli.edu.co`;                 /* sin correo en el archivo: se genera uno a partir del documento */
+    const periodo = cols[5] || defPer;
+    if (!PERIODO_RE.test(periodo)) { skipped.push(`Fila ${i + 1}: corte inválido "${periodo}" (usa 2026-1; en Excel pon la columna en formato Texto para que no la convierta en fecha)`); return; }
+    seen.add(documento);
+    rows.push({ nombre, documento, correo, carrera: cols[3] || defCarrera, grupo: cols[4] || defGrupo, periodo });
+  });
+  return { rows, skipped };
+}
+
+function updateBulkPreview() {
+  const { rows, skipped } = parseBulkLines($('#bulkPaste').value);
+  state.bulkParsed = rows;
+  const wrap = $('#bulkPreviewWrap'), btn = $('#uploadBulkBtn');
+  wrap.hidden = rows.length === 0 && skipped.length === 0;
+  btn.disabled = rows.length === 0 || state.bulkBusy || !can('estudiantes', 'editar');
+  $('#bulkPreviewTitle').textContent = `${rows.length} ${rows.length === 1 ? 'estudiante listo' : 'estudiantes listos'} para cargar` + (skipped.length ? ` · ${skipped.length} omitidas` : '');
+  $('#bulkPreviewTitle').title = skipped.slice(0, 15).join('\n');
+  const errBox = $('#bulkError');
+  if (skipped.length) { errBox.textContent = 'Omitidas: ' + skipped.slice(0, 4).join(' · ') + (skipped.length > 4 ? ` · y ${skipped.length - 4} más` : ''); errBox.hidden = false; }
+  else if (!state.bulkBusy) errBox.hidden = true;
+  $('#bulkPreviewBody').innerHTML = rows.slice(0, 50).map(r => `
+    <tr>
+      <td class="cell-main">${esc(r.nombre)}</td>
+      <td class="mono">${esc(r.documento)}</td>
+      <td>${esc(r.carrera)}</td>
+      <td><span class="tag-pill">${esc(r.grupo)}</span></td>
+      <td>${esc(r.periodo)}</td>
+    </tr>
+  `).join('');
+}
+
+$('#bulkPaste').addEventListener('input', updateBulkPreview);
+$('#bulkCarrera').addEventListener('input', updateBulkPreview);
+$('#bulkGrupo').addEventListener('input', updateBulkPreview);
+$('#bulkPeriodo').addEventListener('input', updateBulkPreview);
+$('#clearBulkBtn').addEventListener('click', () => { $('#bulkPaste').value = ''; $('#csvFileInput').value = ''; $('#csvFileName').hidden = true; updateBulkPreview(); });
+
+// Dropzone archivo Excel / CSV
+(function () {
+  const dz = $('#csvDropzone'), fIn = $('#csvFileInput');
+  const put = t => { $('#bulkPaste').value = t; updateBulkPreview(); };
+  const take = file => { if (file && can('estudiantes', 'editar')) loadTableInto(file, $('#bulkError'), put, $('#csvFileName')); };
+  dz.addEventListener('click', () => { if (can('estudiantes', 'editar')) fIn.click(); });
+  dz.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && can('estudiantes', 'editar')) { e.preventDefault(); fIn.click(); } });
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); take(e.dataTransfer.files[0]); });
+  fIn.addEventListener('change', () => { const f = fIn.files[0]; fIn.value = ''; take(f); });   /* se limpia para poder volver a elegir el mismo archivo */
+})();
+
+// Descargar plantilla CSV (con BOM para que Excel muestre bien las tildes)
+$('#downloadCsvTpl').addEventListener('click', () => {
+  const csv = '\uFEFFNombre,Documento,Correo,Carrera,Grupo,Corte\nAna María López,100456789,ana.lopez@elpoli.edu.co,Ingeniería Informática,G-01,2026-2\nJuan Pablo Díaz,100789123,juan.diaz@elpoli.edu.co,Ingeniería Informática,G-01,2026-2\n';
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  const a = document.createElement('a'); a.href = url; a.download = 'plantilla_estudiantes_kairos.csv'; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+// Enviar carga masiva
+$('#uploadBulkBtn').addEventListener('click', async () => {
+  if (state.bulkBusy || !can('estudiantes', 'editar')) return;
+  const rows = [...state.bulkParsed];
+  if (!rows.length) return;
+  const sid = state.sid, btn = $('#uploadBulkBtn'), errBox = $('#bulkError'), failed = [];
+  state.bulkBusy = true; btn.disabled = true; errBox.hidden = true;
+  let okCount = 0;
+
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const res = await api('POST', CONFIG.EP.estudiantes, { nombre: r.nombre, documento: r.documento, correo: r.correo, fk_matricula: 1, carrera: r.carrera, grupo: r.grupo, periodo: r.periodo }, true);
+    if (sid !== state.sid) { state.bulkBusy = false; return; }
+    if (res.ok) { okCount++; saveMeta(r.documento, r.carrera, r.grupo, r.periodo); }   /* el respaldo local solo se guarda si la API aceptó al estudiante */
+    else { failed.push(r); if (res.net || res.status === 401) { failed.push(...rows.slice(i + 1)); break; } }
+    btn.textContent = `Subiendo (${okCount + failed.length}/${rows.length})...`;
+  }
+
+  state.bulkBusy = false; btn.textContent = 'Cargar listado al grupo';
+  /* En la caja quedan solo las filas que fallaron, para reintentarlas sin volver a escribirlas */
+  $('#bulkPaste').value = failed.map(r => [r.nombre, r.documento, r.correo, r.carrera, r.grupo, r.periodo].join('\t')).join('\n');
+  $('#csvFileName').hidden = true;
+  updateBulkPreview();
+  if (okCount > 0) { toast(`${okCount} ${okCount === 1 ? 'estudiante asignado' : 'estudiantes asignados'} correctamente.`); await loadEstudiantes(); }
+  if (failed.length) {
+    errBox.textContent = `${failed.length} no se pudieron crear (documento o correo ya existente, o sin conexión). Quedaron en la caja para reintentar.`;
+    errBox.hidden = false;
+  }
+});
+
+function renderEstudiantes() {
+  const q = $('#estSearch').value.trim().toLowerCase();
+  const fc = $('#estFilterCarrera').value, fg = $('#estFilterGrupo').value;
+  const list = state.estVis.filter(s =>
+    (!fc || s.carrera === fc) &&
+    (!fg || s.grupo === fg) &&
+    (!q || [s.nombre, s.documento, s.id, s.correo].some(v => v != null && String(v).toLowerCase().includes(q)))
+  );
+  $('#estCount').textContent = state.status.est === 'ok' ? `${nf.format(list.length)} de ${nf.format(state.estVis.length)} estudiantes` : '';
+  const vacio = can('estudiantes', 'editar') ? 'Aún no hay estudiantes. Carga un listado desde el panel derecho.' : 'Aún no hay estudiantes asignados a tus grupos. El coordinador debe cargar el listado.';
+  const empty = stateRow(6, 'est', list.length, q || fc || fg ? 'Ningún estudiante coincide con los filtros.' : vacio);
+  $('#estBody').innerHTML = empty || list.slice(0, 150).map(s => {
+    const f = faltasOf(s.id), lv = levelByFaltas(f);
+    return `<tr data-lv="${lv}">
+      <td><span class="idchip">${esc(s.id ?? '—')}</span></td>
+      <td class="cell-main">${tint(s.nombre ?? '—', s.id)}<div class="cell-sub">${esc(s.correo ?? '')}</div></td>
+      <td class="mono">${esc(s.documento ?? '—')}</td>
+      <td>${esc(s.carrera)}</td>
+      <td><span class="tag-pill">${esc(s.grupo)}${s.periodo ? ' · ' + esc(s.periodo) : ''}</span></td>
+      <td>${f ? `<span class="badge ${lv}">${f}</span>` : '<span class="cell-sub">0</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+$('#estSearch').addEventListener('input', renderEstudiantes);
+$('#estFilterCarrera').addEventListener('change', () => { syncFilterSelects(); renderEstudiantes(); });
+$('#estFilterGrupo').addEventListener('change', renderEstudiantes);
+$('#refreshEst').addEventListener('click', async () => { if (await loadEstudiantes()) toast('Lista de estudiantes actualizada'); });
+
+$('#formEstudiante').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!can('estudiantes', 'editar')) return;
+  const form = e.currentTarget, n = $('#estNombre'), d = $('#estDocumento'), c = $('#estCorreo'), m = $('#estMatricula'), car = $('#estCarrera'), grp = $('#estGrupo');
+  formError(form, '');
+  if (!validate([
+    [n, required('Escribe el nombre del estudiante.')],
+    [d, required('Escribe el documento.')],
+    [c, emailRule],
+    [m, intRule('Escribe el ID de matrícula.', 'Debe ser un número entero.')],
+    [car, required('Indica la carrera.')],
+    [grp, required('Indica el grupo.')],
+    [$('#estPeriodo'), v => !v || PERIODO_RE.test(v) ? '' : 'Usa el formato 2026-1 o 2026-2.']
+  ])) return;
+  const per = $('#estPeriodo').value.trim() || state.periodo || periodoDeFecha(new Date());
+  const r = await api('POST', CONFIG.EP.estudiantes, {
+    nombre: n.value.trim(),
+    documento: d.value.trim(),
+    correo: c.value.trim(),
+    fk_matricula: parseInt(m.value, 10),
+    carrera: car.value.trim(),
+    grupo: grp.value.trim(),
+    periodo: per
+  });
+  if (!r.ok) { formError(form, errMsg(r, 'No se pudo registrar al estudiante (código ' + r.status + ').')); return; }
+  saveMeta(d.value.trim(), car.value.trim(), grp.value.trim(), per);
+  toast('Estudiante registrado'); form.reset(); m.value = '1'; n.focus(); loadEstudiantes();
+});
+
+/* ==========================================================================
+   Alertas tempranas
+   ========================================================================== */
+function renderAlertas() {
+  const q = $('#alertSearch').value.trim().toLowerCase(), fc = $('#alertCarrera').value, fg = $('#alertGrupo').value, all = alertsAll();
+  const rows = all.filter(s =>
+    (!fc || s.carrera === fc) &&
+    (!fg || s.grupo === fg) &&
+    (!q || s.nombre.toLowerCase().includes(q) || String(s.id ?? '').includes(q))
+  );
+  $('#chipTotal').textContent = rows.length; $('#chipCrit').textContent = rows.filter(s => s.nivel === 'crit').length;
+  const pip = $('#navAlertCount'); pip.textContent = all.length; pip.hidden = !all.length;
+  const grid = $('#alertGrid'), st = state.status.alert, loading = st === 'idle' || st === 'loading';
+  if (!rows.length) {
+    grid.innerHTML = `<div class="card ${loading ? 'state-msg' : st === 'error' ? 'state-msg err' : 'empty'}" style="grid-column:1/-1">${loading ? 'Cargando…' : st === 'error' ? esc(state.errors.alert) : 'Sin alertas tempranas en este filtro.'}</div>`; return;
+  }
+  const goOk = can('asistencia', 'ver');
+  grid.innerHTML = rows.map(s => `
+    <article class="card lift acard" style="--tick:${LEVELS[s.nivel].color}">
+      <div class="acard-top">
+        <div class="av">${esc(initials(s.nombre))}</div>
+        <div><div class="nm">${esc(s.nombre)}</div><div class="cell-sub">${esc(s.carrera)} · ${esc(s.grupo)}</div></div>
+        <div class="top-r">${badge(s.nivel)}</div>
+      </div>
+      ${s.faltas !== undefined ? `<div class="faltas"><b>${s.faltas}</b><span>${s.faltas === 1 ? 'inasistencia' : 'inasistencias'}, alerta desde ${CONFIG.RIESGO.alerta}</span></div>
+      <div class="ticks" aria-hidden="true">${Array.from({ length: 10 }, (_, i) => `<i class="${i < s.faltas ? 'on' : ''}"></i>`).join('')}</div>` : ''}
+      ${s.mensaje ? `<div class="msg">${esc(s.mensaje)}</div>` : ''}
+      ${goOk && s.id != null ? `<button class="btn btn-sm go" type="button" data-go="${esc(s.id)}">Ver en la planilla</button>` : ''}
+    </article>`).join('');
+}
+$('#alertSearch').addEventListener('input', renderAlertas);
+$('#alertCarrera').addEventListener('change', () => { syncFilterSelects(); renderAlertas(); });
+$('#alertGrupo').addEventListener('change', renderAlertas);
+$('#refreshAlerts').addEventListener('click', async () => { await Promise.all([loadAsistencias(), loadAlertas()]); toast('Alertas actualizadas'); });
+$('#alertGrid').addEventListener('click', e => {
+  const b = e.target.closest('[data-go]'); if (!b) return;
+  const e2 = findEst(b.dataset.go);
+  $('#planCarrera').value = ''; $('#planGrupo').value = ''; state.planOnly = false; syncFilterSelects();   /* que ningún filtro oculte al estudiante */
+  $('#planSearch').value = e2 ? String(e2.documento ?? e2.nombre ?? b.dataset.go) : b.dataset.go;
+  location.hash = '#/asistencia'; renderPlanilla();
+});
+
+/* ==========================================================================
+   Reportes
+   ========================================================================== */
+const humanize = k => { const s = String(k).replace(/^fk_/, '').replace(/[_-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim(); return s.charAt(0).toUpperCase() + s.slice(1); };
+const isScalar = v => v === null || ['string', 'number', 'boolean'].includes(typeof v);
+const fmtVal = v => v === null || v === undefined ? '—' : typeof v === 'boolean' ? (v ? 'Sí' : 'No') : String(v);
+function tableHTML(arr) {
+  if (!arr.length) return '<p class="empty">Sin filas.</p>';
+  if (!arr.every(x => x && typeof x === 'object' && !Array.isArray(x))) return `<p>${esc(arr.map(fmtVal).join(', '))}</p>`;
+  const cols = [...new Set(arr.slice(0, 50).flatMap(o => Object.keys(o)))].filter(c => arr.some(o => isScalar(o[c]))).slice(0, 8);
+  return `<div class="table-wrap"><table><thead><tr>${cols.map(c => `<th>${esc(humanize(c))}</th>`).join('')}</tr></thead><tbody>${arr.slice(0, 100).map(o => `<tr>${cols.map(c => `<td>${esc(fmtVal(isScalar(o[c]) ? o[c] : ''))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function reportHTML(val) {
+  if (Array.isArray(val)) return tableHTML(val);
+  if (val && typeof val === 'object') {
+    const entries = Object.entries(val), scalars = entries.filter(([, v]) => isScalar(v)), rest = entries.filter(([, v]) => !isScalar(v));
+    let h = '';
+    if (scalars.length) h += `<div class="report-tiles">${scalars.map(([k, v]) => `<div class="stat"><b>${esc(typeof v === 'number' ? nf.format(v) : fmtVal(v))}</b><span>${esc(humanize(k))}</span></div>`).join('')}</div>`;
+    rest.forEach(([k, v]) => { h += `<section class="rep-section"><h3>${esc(humanize(k))}</h3>${reportHTML(v)}</section>`; });
+    return h || '<p class="empty">El reporte llegó vacío.</p>';
+  }
+  return `<p>${esc(fmtVal(val))}</p>`;
+}
+$('#genReport').addEventListener('click', async () => {
+  const btn = $('#genReport'), out = $('#reportOut'); btn.disabled = true; btn.textContent = 'Generando';
+  out.innerHTML = '<p class="state-msg">Generando el reporte…</p>';
+  const r = await api('GET', CONFIG.EP.reportes);
+  btn.disabled = false; btn.textContent = 'Generar reporte completo';
+  out.innerHTML = r.ok ? reportHTML(r.data) : `<p class="state-msg err">${esc(errMsg(r, 'No se pudo generar el reporte (código ' + r.status + ').'))}</p>`;
+});
+
+/* ==========================================================================
+   Usuarios y Matriz RBAC
+   ========================================================================== */
+const ROL_TXT = { 1: 'Coordinador', 2: 'Docente' };
+function renderUsuarios() {
+  $('#userBody').innerHTML = state.usuariosCreados.length ? state.usuariosCreados.map(u => `<tr><td class="mono">${esc(u.hora)}</td><td class="cell-main">${esc(u.nombre)}</td><td class="cell-sub">${esc(u.correo)}</td><td>${esc(u.rol)}</td></tr>`).join('')
+    : '<tr><td colspan="4" class="empty">Todavía no creas usuarios en esta sesión.</td></tr>';
+}
+$('#formRegister').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!can('usuarios', 'editar')) return;
+  const form = e.currentTarget, n = $('#regNombre'), c = $('#regCorreo'), p = $('#regPass'), rol = $('#regRol');
+  formError(form, '');
+  if (!validate([[n, required('Escribe el nombre completo.')], [c, emailRule], [p, required('Escribe una contraseña.')]])) return;
+  const fk = parseInt(rol.value, 10);
+  const r = await api('POST', CONFIG.EP.register, { nombre: n.value.trim(), correo: c.value.trim(), contrasena: p.value, fk_rol: fk });
+  if (!r.ok) { formError(form, errMsg(r, 'No se pudo crear el usuario (código ' + r.status + ').')); return; }
+  state.usuariosCreados.unshift({ hora: clock().slice(0, 5), nombre: n.value.trim(), correo: c.value.trim(), rol: ROL_TXT[fk] || String(fk) });
+  renderUsuarios(); toast('Usuario creado'); form.reset(); rol.value = '2'; n.focus();
+});
+
+function renderRbac() {
+  $('#rbacHead').innerHTML = `<tr><th>Módulo</th>${ROLES.map(r => `<th class="role" style="--rc:${r.color}"><strong>${esc(r.name)}</strong><small>${esc(r.note)}</small></th>`).join('')}</tr>`;
+  $('#rbacBody').innerHTML = MODULES.map(m => `<tr><td class="cell-main">${esc(m.name)}</td>${ROLES.map(r => {
+    const p = state.perms[r.key][m.key], lock = r.locked ? 'disabled' : '';
+    return `<td class="cell"><div class="perm-pair">
+      <button class="perm" type="button" data-role="${r.key}" data-mod="${m.key}" data-kind="ver" aria-pressed="${p.ver}" ${lock}>${iconSvg('eye')}Ver</button>
+      ${m.edit ? `<button class="perm" type="button" data-role="${r.key}" data-mod="${m.key}" data-kind="edit" aria-pressed="${p.editar}" ${lock}>${iconSvg('edit')}Editar</button>` : ''}
+    </div></td>`;
+  }).join('')}</tr>`).join('');
+}
+$('#rbacBody').addEventListener('click', e => {
+  const b = e.target.closest('.perm'); if (!b || b.disabled || state.role !== 'dev') return;
+  const rl = b.dataset.role, mod = b.dataset.mod, kind = b.dataset.kind, p = state.perms[rl][mod];
+  if (kind === 'ver') { p.ver = !p.ver; if (!p.ver) p.editar = false; } else { p.editar = !p.editar; if (p.editar) p.ver = true; }
+  const o = {}; ['coordinador', 'docente'].forEach(r => { o[r] = state.perms[r]; }); store.set('kairosPermisos', JSON.stringify(o));
+  applyRole();
+});
+
+/* ==========================================================================
+   Ojito para ver la contraseña
+   ========================================================================== */
+function addEyes() {
+  $$('input[type="password"]').forEach(inp => {
+    if (inp.dataset.eye) return; inp.dataset.eye = '1';
+    const wrap = document.createElement('span'); wrap.className = 'pw-wrap';
+    inp.parentNode.insertBefore(wrap, inp); wrap.appendChild(inp);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'pw-eye';
+    b.setAttribute('aria-label', 'Mostrar contraseña'); b.setAttribute('aria-pressed', 'false'); b.innerHTML = iconSvg('eye');
+    b.addEventListener('click', () => {
+      const show = inp.type === 'password'; inp.type = show ? 'text' : 'password';
+      b.innerHTML = iconSvg(show ? 'eyeoff' : 'eye'); b.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña'); b.setAttribute('aria-pressed', String(show)); inp.focus();
+    });
+    wrap.appendChild(b);
+  });
+}
+function hidePw(root) {
+  $$('.pw-wrap', root || document).forEach(w => { const i = $('input', w), b = $('.pw-eye', w); if (i.type !== 'password') { i.type = 'password'; b.innerHTML = iconSvg('eye'); b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Mostrar contraseña'); } });
+}
+document.addEventListener('reset', e => hidePw(e.target));
+
+/* Cambiar contraseña (el docente entra con su ID y luego la cambia aquí) */
+$('#pwBtn').addEventListener('click', () => {
+  const f = $('#formPw'); f.reset(); formError(f, ''); $$('.input', f).forEach(i => setErr(i, ''));
+  $('#pwDlg').showModal(); $('#pwActual').focus();
+});
+$('#pwCancel').addEventListener('click', () => $('#pwDlg').close());
+$('#formPw').addEventListener('submit', async e => {
+  e.preventDefault();
+  const form = e.currentTarget, a = $('#pwActual'), n = $('#pwNueva'), n2 = $('#pwNueva2');
+  formError(form, '');
+  if (!validate([
+    [a, required('Escribe tu contraseña actual.')],
+    [n, v => !v ? 'Escribe la contraseña nueva.' : v.length < 6 ? 'Usa al menos 6 caracteres.' : v === a.value.trim() ? 'La nueva debe ser distinta de la actual.' : ''],
+    [n2, () => n2.value === n.value ? '' : 'Las contraseñas no coinciden.']
+  ])) return;
+  const btn = $('#pwSubmit'); btn.disabled = true;
+  const r = await api('POST', CONFIG.EP.cambiarPass, { contrasena_actual: a.value, contrasena_nueva: n.value });
+  btn.disabled = false;
+  if (!r.ok) { formError(form, r.status === 404 ? 'El backend todavía no tiene la ruta ' + CONFIG.EP.cambiarPass + '.' : errMsg(r, 'No se pudo cambiar la contraseña (código ' + r.status + ').')); return; }
+  $('#pwDlg').close(); toast('Contraseña actualizada');
+});
+
+/* ==========================================================================
+   Cortes (periodos) y carreras
+   ========================================================================== */
+function allPeriodos() {
+  const set = new Set([...getCat().periodos, periodoDeFecha(new Date())]);
+  if (state.periodo) set.add(state.periodo);
+  state.estudiantes.forEach(s => s.periodo && set.add(s.periodo));
+  state.asistencias.forEach(a => { const d = parseDate(a.fecha); if (d) set.add(periodoDeFecha(d)); });
+  return [...set].sort().reverse();
+}
+function setSig(el, html) { if (el.dataset.sig === html) return false; el.innerHTML = html; el.dataset.sig = html; return true; }
+function renderPeriodos() {
+  const list = allPeriodos(), now = periodoDeFecha(new Date()), sel = $('#periodoSel');
+  setSig(sel, '<option value="">Todos los cortes</option>' + list.map(p => `<option value="${esc(p)}">${esc(p)}${p === now ? ' (actual)' : ''}</option>`).join(''));
+  sel.value = state.periodo;
+  $('#periodosList').innerHTML = list.map(p => `<option value="${esc(p)}">`).join('');
+  $('#perChips').innerHTML = list.map(p => `<span class="chip">${esc(p)}${p === now ? ' <b>actual</b>' : ''}</span>`).join('');
+}
+$('#periodoSel').addEventListener('change', e => { state.periodo = e.target.value; store.set('kairosPeriodo', state.periodo); state.draftAsis = {}; renderAll(); });
+
+function renderCarreras() {
+  const cat = getCat(), es = (a, b) => a.localeCompare(b, 'es');
+  const carreras = [...new Set([...state.estudiantes.map(s => s.carrera), ...cat.carreras].filter(Boolean))].sort(es);
+  $('#carCount').textContent = `${carreras.length} ${carreras.length === 1 ? 'carrera' : 'carreras'}`;
+  $('#carBody').innerHTML = carreras.length ? carreras.map(c => {
+    const gr = new Map(), put = (g, p) => { if (g) gr.set(g + '|' + (p || ''), { g, p: p || '' }); };
+    state.estudiantes.filter(s => s.carrera === c).forEach(s => put(s.grupo, s.periodo));
+    cat.grupos.filter(g => g.carrera === c).forEach(g => put(g.grupo, g.periodo));
+    const n = state.estVis.filter(s => s.carrera === c).length;
+    const tags = [...gr.values()].sort((a, b) => b.p.localeCompare(a.p) || a.g.localeCompare(b.g, 'es')).map(x => `<span class="tag-pill">${esc(x.g)}${x.p ? ' · ' + esc(x.p) : ''}</span>`).join('');
+    return `<tr><td class="cell-main">${esc(c)}</td><td><div class="tag-list">${tags || '<span class="cell-sub">Sin grupos</span>'}</div></td><td class="num">${n}</td></tr>`;
+  }).join('') : '<tr><td colspan="3" class="empty">Aún no hay carreras. Crea la primera con el formulario.</td></tr>';
+  const sel = $('#grpCarrera'), prev = sel.value;
+  if (setSig(sel, carreras.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')) && carreras.includes(prev)) sel.value = prev;
+}
+$('#formCarrera').addEventListener('submit', e => {
+  e.preventDefault();
+  const form = e.currentTarget, n = $('#carNombre');
+  if (!can('carreras', 'editar') || !validate([[n, required('Escribe el nombre de la carrera.')]])) return;
+  const cat = getCat(), nombre = n.value.trim().replace(/\s+/g, ' ');
+  if ([...cat.carreras, ...state.estudiantes.map(s => s.carrera)].some(c => plain(c) === plain(nombre))) { setErr(n, 'Esa carrera ya existe.'); n.focus(); return; }
+  cat.carreras.push(nombre); saveCat(cat); form.reset(); toast('Carrera agregada'); renderAll();
+});
+$('#formGrupo').addEventListener('submit', e => {
+  e.preventDefault();
+  const form = e.currentTarget, c = $('#grpCarrera'), g = $('#grpNombre'), p = $('#grpPeriodo');
+  if (!can('carreras', 'editar') || !validate([
+    [c, required('Primero crea una carrera.')],
+    [g, required('Escribe el nombre del grupo.')],
+    [p, v => !v ? 'Indica el corte, por ejemplo 2026-2.' : PERIODO_RE.test(v) ? '' : 'Usa el formato 2026-1 o 2026-2.']
+  ])) return;
+  const cat = getCat(), item = { carrera: c.value, grupo: g.value.trim(), periodo: p.value.trim() };
+  if (cat.grupos.some(x => x.carrera === item.carrera && plain(x.grupo) === plain(item.grupo) && x.periodo === item.periodo)) { setErr(g, 'Ese grupo ya existe en ese corte.'); g.focus(); return; }
+  cat.grupos.push(item); if (!cat.periodos.includes(item.periodo)) cat.periodos.push(item.periodo);
+  saveCat(cat); form.reset(); toast('Grupo agregado'); renderAll();
+});
+$('#formPeriodo').addEventListener('submit', e => {
+  e.preventDefault();
+  const form = e.currentTarget, p = $('#perNombre');
+  if (!can('carreras', 'editar') || !validate([[p, v => !v ? 'Escribe el corte, por ejemplo 2027-1.' : PERIODO_RE.test(v) ? '' : 'Usa el formato año-semestre, por ejemplo 2027-1.']])) return;
+  const cat = getCat();
+  if (allPeriodos().includes(p.value.trim())) { setErr(p, 'Ese corte ya existe.'); p.focus(); return; }
+  cat.periodos.push(p.value.trim()); saveCat(cat); form.reset(); toast('Corte agregado'); renderAll();
+});
+
+/* ==========================================================================
+   Docentes: listado (Nombre, ID, Correo, Grupos) y cuentas automáticas. Contraseña inicial = ID
+   ========================================================================== */
+function parseDocLines(raw) {
+  const lines = String(raw || '').replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim());
+  const rows = [], skipped = [], seen = new Set(getDocentes().map(d => plain(d.correo)));
+  lines.forEach((line, i) => {
+    const sep = line.includes('\t') ? '\t' : line.includes(';') ? ';' : ',';
+    const cols = line.split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
+    if (i === 0 && /^nombre/i.test(cols[0])) return;
+    if (cols.length < 3) { skipped.push(`Fila ${i + 1}: faltan columnas (Nombre, ID, Correo)`); return; }
+    const [nombre, id, correo, gr = ''] = cols;
+    if (!nombre) { skipped.push(`Fila ${i + 1}: falta el nombre`); return; }
+    if (!/^[A-Za-z0-9]{6,20}$/.test(id)) { skipped.push(`Fila ${i + 1}: ID inválido "${id}" (6 a 20 letras o números, es la contraseña inicial)`); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { skipped.push(`Fila ${i + 1}: correo inválido`); return; }
+    if (seen.has(plain(correo))) { skipped.push(`Fila ${i + 1}: ${correo} ya está cargado o repetido`); return; }
+    seen.add(plain(correo));
+    rows.push({ nombre, id, correo, grupos: gr.split(/[|\/]/).map(x => x.trim()).filter(Boolean) });
+  });
+  return { rows, skipped };
+}
+function updateDocPreview() {
+  const { rows, skipped } = parseDocLines($('#docPaste').value);
+  state.docParsed = rows;
+  $('#docPreviewWrap').hidden = !rows.length && !skipped.length;
+  $('#uploadDocBtn').disabled = !rows.length || state.docBusy || !can('docentes', 'editar');
+  $('#docPreviewTitle').textContent = `${rows.length} ${rows.length === 1 ? 'docente listo' : 'docentes listos'} para crear` + (skipped.length ? ` · ${skipped.length} omitidas` : '');
+  const box = $('#docError');
+  if (skipped.length) { box.textContent = 'Omitidas: ' + skipped.slice(0, 4).join(' · ') + (skipped.length > 4 ? ` · y ${skipped.length - 4} más` : ''); box.hidden = false; }
+  else if (!state.docBusy) box.hidden = true;
+  $('#docPreviewBody').innerHTML = rows.slice(0, 50).map(r => `<tr><td class="cell-main">${esc(r.nombre)}</td><td class="mono">${esc(r.id)}</td><td class="cell-sub">${esc(r.correo)}</td><td>${r.grupos.map(g => `<span class="tag-pill">${esc(g)}</span>`).join(' ') || '—'}</td></tr>`).join('');
+}
+function renderDocentes() {
+  const l = getDocentes();
+  $('#docCount').textContent = l.length ? `${l.length} ${l.length === 1 ? 'docente creado' : 'docentes creados'} desde este navegador` : '';
+  $('#docListBody').innerHTML = l.length ? l.map(d => `<tr><td class="cell-main">${esc(d.nombre)}</td><td class="cell-sub">${esc(d.correo)}</td><td><div class="tag-list">${(d.grupos || []).map(g => `<span class="tag-pill">${esc(g)}</span>`).join('') || '<span class="cell-sub">—</span>'}</div></td><td class="mono">${esc(fmtDate(d.hora))}</td></tr>`).join('')
+    : '<tr><td colspan="4" class="empty">Aún no has cargado docentes desde este navegador.</td></tr>';
+}
+$('#docPaste').addEventListener('input', updateDocPreview);
+$('#clearDocBtn').addEventListener('click', () => { $('#docPaste').value = ''; $('#docFileInput').value = ''; updateDocPreview(); });
+(function () {
+  const dz = $('#docDropzone'), fi = $('#docFileInput'), put = t => { $('#docPaste').value = t; updateDocPreview(); };
+  const take = file => { if (file && can('docentes', 'editar')) loadTableInto(file, $('#docError'), put, null); };
+  dz.addEventListener('click', () => { if (can('docentes', 'editar')) fi.click(); });
+  dz.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && can('docentes', 'editar')) { e.preventDefault(); fi.click(); } });
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dragover'); take(e.dataTransfer.files[0]); });
+  fi.addEventListener('change', () => { const f = fi.files[0]; fi.value = ''; take(f); });
+})();
+$('#downloadDocTpl').addEventListener('click', () => {
+  const csv = '\uFEFFNombre,ID,Correo,Grupos\nLaura Ríos,1037000111,laura.rios@elpoli.edu.co,G-01|G-02\nCarlos Mejía,98123456,carlos.mejia@elpoli.edu.co,G-01\n';
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+  const a = document.createElement('a'); a.href = url; a.download = 'plantilla_docentes_kairos.csv'; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+$('#uploadDocBtn').addEventListener('click', async () => {
+  if (state.docBusy || !can('docentes', 'editar')) return;
+  const rows = [...state.docParsed]; if (!rows.length) return;
+  const sid = state.sid, btn = $('#uploadDocBtn'), box = $('#docError'), failed = [];
+  state.docBusy = true; btn.disabled = true; box.hidden = true;
+  let ok = 0;
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i];
+    const res = await api('POST', CONFIG.EP.register, { nombre: r.nombre, correo: r.correo, contrasena: r.id, fk_rol: CONFIG.ROL_ID_DOCENTE, documento: r.id, grupos: r.grupos }, true);
+    if (sid !== state.sid) { state.docBusy = false; return; }
+    if (res.ok) { ok++; saveDocente({ nombre: r.nombre, correo: r.correo, grupos: r.grupos, hora: localStamp() }); renderDocentes(); }
+    else { failed.push(r); if (res.net || res.status === 401) { failed.push(...rows.slice(i + 1)); break; } }
+    btn.textContent = `Creando (${ok + failed.length}/${rows.length})...`;
+  }
+  state.docBusy = false; btn.textContent = 'Crear cuentas de docentes';
+  $('#docPaste').value = failed.map(r => [r.nombre, r.id, r.correo, r.grupos.join('|')].join('\t')).join('\n');
+  updateDocPreview();
+  if (ok) toast(`${ok} ${ok === 1 ? 'cuenta creada' : 'cuentas creadas'}. Entran con su correo y su ID.`);
+  if (failed.length) { box.textContent = `${failed.length} no se pudieron crear (correo ya registrado, sin permiso o sin conexión). Quedaron en la caja para reintentar.`; box.hidden = false; }
+});
+
+/* ==========================================================================
+   Arranque
+   ========================================================================== */
+function renderAll() {
+  recompute();
+  renderPeriodos();
+  syncFilterSelects();
+  renderDashboard();
+  renderEstudiantes();
+  renderMaterias();
+  renderAsistencias();
+  renderPlanilla();
+  renderCarreras();
+  renderDocentes();
+  renderAlertas();
+  renderNotifs();
+  checkNewAlerts();
+}
+paintIcons(); addEyes(); renderAll(); renderUsuarios(); renderRbac();
+if (!CONFIG.REGISTRO_PUBLICO) { $('.tabs').hidden = true; }
+(async function boot() {
+  logSys('<b>Kairós</b> 2.3.0, permisos visibles por rol y lectura de Excel (.xlsx)');
+  logSys('API_BASE = <b>' + esc(CONFIG.API_BASE) + '</b>');
+  await pingApi();
+  const t = store.get('tokenJWT');
+  const pl = t ? jwtPayload(t) : {};
+  if (t && pl.exp && pl.exp * 1000 < Date.now()) {              /* token vencido: ni siquiera se muestra la app */
+    store.del('tokenJWT'); store.del('kairosUsuario'); logSys('La sesión guardada ya venció. Inicia sesión otra vez.', 'err');
+  } else if (t) {
+    state.token = t;
+    let u = null; try { u = JSON.parse(store.get('kairosUsuario') || 'null'); } catch (e) {}
+    state.user = Object.assign({}, u || {}, pl);                 /* lo que dice el token manda sobre lo guardado en el navegador */
+    logSys('Sesión anterior encontrada, validando con la API.');
+    enterApp();
+  }
+})();
+</script>
+</body>
+</html>

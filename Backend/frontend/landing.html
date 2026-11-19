@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kairós | Detección temprana de deserción</title>
+<meta name="description" content="Kairós: seguimiento de asistencia y participación con alerta temprana de riesgo de deserción universitaria. Politécnico Colombiano Jaime Isaza Cadavid.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--font-ui:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;--r-card:20px;--r-ctl:12px;--ease:cubic-bezier(.2,.7,.2,1)}
+:root[data-theme="dark"]{color-scheme:dark;
+ --bg:#060913;--bg-2:#0b0f19;--surface:rgba(18,24,42,.58);--surface-hi:rgba(26,34,58,.85);--field:rgba(6,9,19,.6);
+ --border:rgba(148,163,184,.15);--border-hi:rgba(226,177,60,.45);--text:#e8ebf7;--muted:#8d95b0;--faint:#5d6580;
+ --accent:#e2b13c;--accent-ink:#1a1405;--accent-soft:rgba(226,177,60,.13);--accent2:#35b0b0;
+ --k-navy:#8fb0e8;--k-gold:#e2b13c;--k-crim:#d1425f;--k-teal:#35b0b0;
+ --shadow:0 1px 0 rgba(255,255,255,.05) inset,0 18px 40px -18px rgba(0,0,0,.8);--shadow-hi:0 1px 0 rgba(255,255,255,.07) inset,0 26px 50px -16px rgba(0,0,0,.9);
+ --glow-a:rgba(53,176,176,.15);--glow-b:rgba(226,177,60,.10);
+ --crit:#fb7185;--crit-bg:rgba(244,63,94,.15);--high:#fb923c;--high-bg:rgba(249,115,22,.15);--mid:#facc15;--mid-bg:rgba(234,179,8,.14);--ok:#4ade80;--ok-bg:rgba(34,197,94,.14);--grid:rgba(148,163,184,.14)}
+:root[data-theme="light"]{color-scheme:light;
+ --bg:#f8fafc;--bg-2:#ffffff;--surface:rgba(255,255,255,.78);--surface-hi:rgba(255,255,255,.97);--field:rgba(248,250,252,.95);
+ --border:rgba(27,54,93,.12);--border-hi:rgba(27,54,93,.4);--text:#0f1b2e;--muted:#566680;--faint:#97a3b8;
+ --accent:#1b365d;--accent-ink:#ffffff;--accent-soft:rgba(27,54,93,.08);--accent2:#207878;
+ --k-navy:#1b365d;--k-gold:#d9a62e;--k-crim:#7f1734;--k-teal:#207878;
+ --shadow:0 1px 0 #fff inset,0 12px 30px -16px rgba(27,54,93,.2);--shadow-hi:0 1px 0 #fff inset,0 24px 44px -18px rgba(27,54,93,.32);
+ --glow-a:rgba(32,120,120,.11);--glow-b:rgba(217,166,46,.14);
+ --crit:#be123c;--crit-bg:rgba(190,18,60,.10);--high:#c2410c;--high-bg:rgba(249,115,22,.14);--mid:#854d0e;--mid-bg:rgba(234,179,8,.20);--ok:#15803d;--ok-bg:rgba(34,197,94,.13);--grid:rgba(27,54,93,.10)}
+
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;font-family:var(--font-ui);font-size:16px;line-height:1.6;color:var(--text);-webkit-font-smoothing:antialiased;
+ background:radial-gradient(1000px 600px at 100% -8%,var(--glow-a),transparent 62%),radial-gradient(900px 600px at -10% 55%,var(--glow-b),transparent 62%),var(--bg);background-attachment:fixed;transition:background-color .3s var(--ease),color .3s var(--ease)}
+h1,h2,h3,p{margin:0}a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+::selection{background:var(--accent);color:var(--accent-ink)}
+.mono{font-family:var(--font-mono)}
+svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.wrap{width:100%;max-width:1160px;margin:0 auto;padding:0 24px}
+
+/* ===== Navegación ===== */
+.nav{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:var(--surface);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%)}
+.nav .wrap{display:flex;align-items:center;gap:22px;height:68px}
+.brand{display:flex;align-items:center;gap:11px}
+.kmark{width:38px;height:38px;flex:none}
+.brand b{display:block;font-size:17px;font-weight:800;letter-spacing:.2em;line-height:1.1;color:var(--k-navy)}
+.brand small{font-size:11.5px;color:var(--muted);font-weight:500}
+.links{display:flex;gap:4px;margin-left:18px}
+.links a{padding:8px 13px;border-radius:10px;font-weight:600;font-size:14px;color:var(--muted);transition:background .18s,color .18s}
+.links a:hover{color:var(--text);background:var(--accent-soft)}
+.nav-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.theme-switch{display:inline-grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border-radius:999px;background:var(--field);border:1px solid var(--border)}
+.theme-switch button{display:flex;align-items:center;gap:6px;padding:6px 12px;border:0;border-radius:999px;background:transparent;color:var(--muted);font-weight:600;font-size:12.5px;transition:background .2s,color .2s}
+.theme-switch button svg{width:14px;height:14px}
+.theme-switch button[aria-checked="true"]{background:var(--accent);color:var(--accent-ink)}
+
+.btn{white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:11px 20px;border-radius:var(--r-ctl);border:1px solid var(--border);background:var(--surface-hi);font-weight:700;font-size:14.5px;transition:transform .15s var(--ease),box-shadow .2s var(--ease),border-color .2s var(--ease)}
+.btn:hover{border-color:var(--border-hi);transform:translateY(-2px)}.btn:active{transform:scale(.98)}
+.btn svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.btn-primary{border-color:transparent;background:var(--accent);color:var(--accent-ink);box-shadow:0 12px 26px -12px var(--accent)}
+.btn-primary:hover{border-color:transparent;box-shadow:0 16px 32px -10px var(--accent)}
+.btn-lg{padding:14px 26px;font-size:15.5px}
+
+/* ===== Hero ===== */
+.hero{padding:76px 0 70px}
+.hero .wrap{display:grid;grid-template-columns:1.08fr .92fr;gap:54px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:6px 14px 6px 10px;border-radius:999px;font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid var(--border)}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+h1{font-size:clamp(36px,5.4vw,60px);font-weight:800;letter-spacing:-.035em;line-height:1.06;margin:20px 0 18px}
+h1 em{font-style:normal;background:linear-gradient(100deg,var(--k-teal),var(--k-gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:18px;color:var(--muted);max-width:560px}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.hero-note{margin-top:22px;font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.hero-note svg{width:16px;height:16px;fill:none;stroke:var(--ok);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+
+/* tarjeta de regla (simulador) */
+.card{background:var(--surface);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--shadow);padding:24px}
+.sim{box-shadow:var(--shadow-hi);position:relative}
+.sim-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.sim-top h2{font-size:15.5px;font-weight:700}
+.tag{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sim p.cap{font-size:13.5px;color:var(--muted);margin-bottom:20px}
+.sim-count{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.sim-count b{font-size:56px;font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.sim-count span{color:var(--muted);font-size:14px}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:4px 12px 4px 10px;border-radius:999px;font-size:13px;font-weight:700;margin-left:auto;transition:color .25s,background .25s}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.badge[data-lv="ok"]{color:var(--ok);background:var(--ok-bg)}.badge[data-lv="mid"]{color:var(--mid);background:var(--mid-bg)}
+.badge[data-lv="high"]{color:var(--high);background:var(--high-bg)}.badge[data-lv="crit"]{color:var(--crit);background:var(--crit-bg)}
+.ticks{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-bottom:10px}
+.ticks i{height:10px;border-radius:4px;background:var(--grid);transition:background .25s,transform .25s var(--ease)}
+.ticks i.on{background:var(--c);transform:scaleY(1.25)}
+.marks{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;font-size:11.5px;color:var(--faint);font-family:var(--font-mono);margin-bottom:20px}
+.marks span{text-align:center}.marks .mk{color:var(--muted);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent);margin:2px 0 4px;cursor:pointer}
+.sim label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.bell{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:13px 14px;border-radius:14px;background:var(--field);border:1px solid var(--border);transition:opacity .3s,transform .3s var(--ease)}
+.bell.off{opacity:.38;transform:scale(.99)}
+.bell .dot{width:9px;height:9px;margin-top:7px;border-radius:50%;background:var(--bc,var(--faint));flex:none;transition:background .25s}
+.bell p{font-size:13.5px;line-height:1.45}.bell small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+
+/* ===== Secciones ===== */
+section.s{padding:84px 0}
+.sec-head{max-width:640px;margin-bottom:44px}
+.sec-head .kicker{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2)}
+.sec-head h2{font-size:clamp(28px,3.6vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1.12;margin:10px 0 14px}
+.sec-head p{color:var(--muted);font-size:17px}
+
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:st}
+.step{position:relative;padding:28px 24px 26px}
+.step::before{counter-increment:st;content:counter(st);display:grid;place-items:center;width:38px;height:38px;border-radius:12px;font-weight:800;font-size:16px;background:var(--accent);color:var(--accent-ink);margin-bottom:18px}
+.step h3{font-size:18px;font-weight:700;margin-bottom:8px;letter-spacing:-.01em}.step p{color:var(--muted);font-size:15px}
+.step .who{display:inline-block;margin-top:14px;font-size:12.5px;font-weight:700;color:var(--accent2)}
+
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.lvl{padding:20px;border-radius:var(--r-card);border:1px solid var(--border);background:var(--surface);border-top:4px solid var(--c)}
+.lvl b{display:block;font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--c);font-variant-numeric:tabular-nums}
+.lvl h3{font-size:15px;font-weight:700;margin:8px 0 4px}.lvl p{font-size:13.5px;color:var(--muted)}
+.rule-note{margin-top:20px;display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:14.5px;max-width:760px}
+.rule-note svg{width:18px;height:18px;margin-top:3px;color:var(--accent2)}
+
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.feat{padding:26px 24px;transition:transform .22s var(--ease),border-color .22s,background .22s,box-shadow .22s}
+.feat:hover{transform:translateY(-4px);border-color:var(--border-hi);background:var(--surface-hi);box-shadow:var(--shadow-hi)}
+.feat .ic{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;margin-bottom:16px;background:var(--accent-soft);color:var(--accent)}
+.feat h3{font-size:17px;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}.feat p{font-size:14.5px;color:var(--muted)}
+
+.roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:820px;margin:0 auto}
+.role{padding:26px 24px;border-top:4px solid var(--rc)}
+.role h3{font-size:18px;font-weight:800;letter-spacing:-.01em}.role .sub{font-size:13px;color:var(--muted);margin:2px 0 16px}
+.role ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.role li{display:flex;gap:10px;font-size:14.5px;color:var(--text)}
+.role li svg{width:17px;height:17px;margin-top:3px;fill:none;stroke:var(--rc);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.role-note{margin-top:18px;font-size:14px;color:var(--muted)}
+
+.final{padding:70px 0 90px}
+.final .card{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;padding:42px 44px;border-left:6px solid var(--k-gold)}
+.final h2{font-size:clamp(26px,3.2vw,36px);font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-bottom:10px}
+.final p{color:var(--muted);font-size:17px;max-width:560px}
+
+footer{border-top:1px solid var(--border);padding:34px 0 44px;background:var(--surface)}
+footer .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px}
+.foot-inst{display:flex;align-items:center;gap:14px}
+.crest{height:56px;width:auto;display:block;flex:none}
+.foot-inst b{display:block;font-size:14.5px}.foot-inst span{font-size:13px;color:var(--muted)}
+.foot-r{font-size:13px;color:var(--muted);text-align:right;line-height:1.5;max-width:520px}
+
+/* revelado al hacer scroll */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rv{opacity:1;transform:none;transition:none}.ticks i,.btn,.feat{transition:none}}
+
+@media (max-width:960px){
+ .hero .wrap{grid-template-columns:1fr;gap:40px}.hero{padding:48px 0 50px}
+ .steps,.feats,.roles{grid-template-columns:1fr}.levels{grid-template-columns:1fr 1fr}
+ .final .card{grid-template-columns:1fr;padding:32px 26px}.links{display:none}
+ .foot-r{text-align:left}section.s{padding:60px 0}
+}
+@media (max-width:560px){
+ .wrap{padding:0 16px}.nav .wrap{gap:10px;height:62px}.theme-switch button span{display:none}.brand small{display:none}
+ .nav-actions .btn{padding:9px 14px;font-size:13.5px}.brand b{letter-spacing:.14em}.lead{font-size:16.5px}.levels{grid-template-columns:1fr}.sim-count b{font-size:46px}.cta .btn{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="kmark" viewBox="0 0 100 100" fill="none" stroke-width="5.2">
+      <line x1="0" y1="2.75" x2="47.3" y2="2.75" style="stroke:var(--k-navy)"/>
+      <line x1="47.3" y1="2.75" x2="100" y2="2.75" style="stroke:var(--k-teal)"/>
+      <line x1="2.6" y1="0" x2="2.6" y2="100" style="stroke:var(--k-gold)"/>
+      <line x1="50" y1="5.5" x2="50" y2="94.8" style="stroke:var(--k-gold)"/>
+      <line x1="4.5" y1="3.5" x2="47.5" y2="50.8" style="stroke:var(--k-navy)"/>
+      <line x1="4.5" y1="94" x2="47.5" y2="50.8" style="stroke:var(--k-navy)"/>
+      <line x1="53" y1="45" x2="76" y2="26" style="stroke:var(--k-gold)"/>
+      <line x1="76" y1="26" x2="99" y2="3" style="stroke:var(--k-crim)"/>
+      <line x1="90.8" y1="12" x2="90.8" y2="92" style="stroke:var(--k-crim)"/>
+      <line x1="53" y1="51" x2="60" y2="58.8" style="stroke:var(--k-gold)"/>
+      <line x1="60" y1="58.8" x2="93.5" y2="96.5" style="stroke:var(--k-crim)"/>
+      <line x1="0" y1="97.4" x2="93" y2="97.4" style="stroke:var(--k-navy)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ================= NAVEGACIÓN ================= -->
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#inicio" aria-label="Kairós, ir al inicio">
+      <svg class="kmark" viewBox="0 0 100 100" aria-hidden="true"><use href="#kmark" width="100" height="100"/></svg>
+      <span><b>KAIRÓS</b></span>
+    </a>
+    <nav class="links" aria-label="Secciones">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#alertas">Alertas</a>
+      <a href="#funciones">Funciones</a>
+      <a href="#roles">Roles</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="theme-switch" role="radiogroup" aria-label="Tema de la interfaz">
+        <button type="button" role="radio" data-theme-set="light" aria-checked="false"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span>Claro</span></button>
+        <button type="button" role="radio" data-theme-set="dark" aria-checked="true"><svg class="ico" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>Oscuro</span></button>
+      </div>
+      <a class="btn btn-primary" href="index.html">Iniciar sesión</a>
+    </div>
+  </div>
+</header>
+
+<main id="inicio">
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow"><i></i>Politécnico Colombiano Jaime Isaza Cadavid</span>
+      <h1>El momento justo para <em>actuar</em> antes de que haya deserción de un estudiante.</h1>
+      <p class="lead">Kairós registra la asistencia y la participación en cada clase y avisa desde la tercera inasistencia, para que docentes y coordinación intervengan a tiempo.</p>
+      <div class="cta">
+        <a class="btn btn-primary btn-lg" href="index.html">Ingresar al sistema
+          <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+        <a class="btn btn-lg" href="#como-funciona">Ver cómo funciona</a>
+      </div>
+      <p class="hero-note"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Acceso con tu correo institucional · Las cuentas de docente las crea coordinación</p>
+    </div>
+
+    <!-- Simulador de la regla de alerta -->
+    <div class="card sim rv" aria-labelledby="simT">
+      <div class="sim-top"><h2 id="simT">Así funciona la alerta temprana</h2><span class="tag">Simulador</span></div>
+      <p class="cap">Mueve el control para ver cómo cambia el nivel según las inasistencias de un estudiante en un corte.</p>
+      <div class="sim-count"><b id="simN" aria-live="polite">0</b><span id="simW">inasistencias</span><span class="badge" id="simB" data-lv="ok">Normal</span></div>
+      <div class="ticks" id="simTicks" aria-hidden="true"></div>
+      <div class="marks" id="simMarks" aria-hidden="true"></div>
+      <label for="simR">Inasistencias del estudiante</label>
+      <input type="range" id="simR" min="0" max="10" step="1" value="2" aria-describedby="simBell">
+      <div class="bell off" id="simBell" role="status">
+        <span class="dot"></span>
+        <p id="simMsg">Sin aviso por ahora.<small>La campana se activa al llegar a 3 inasistencias.</small></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CÓMO FUNCIONA ================= -->
+<section class="s" id="como-funciona">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kicker">Cómo funciona</span>
+      <h2>De un listado en Excel a una alerta a tiempo</h2>
+      <p>Tres pasos, sin hojas sueltas ni cuentas manuales.</p>
+    </div>
+    <div class="steps">
+      <article class="card step rv">
+        <h3>Coordinación carga los listados</h3>
+        <p>Sube el Excel o CSV de estudiantes y de docentes. Kairós lee las columnas que necesita, crea las cuentas de los docentes y asigna a cada uno sus grupos.</p>
+        <span class="who">Coordinador</span>
+      </article>
+      <article class="card step rv">
+        <h3>El docente toma asistencia</h3>
+        <p>Una planilla tipo Excel por carrera y grupo: se marca Presente, Ausente o Justificada y se guarda todo de una vez. Si hay un error, se corrige el mismo día.</p>
+        <span class="who">Docente</span>
+      </article>
+      <article class="card step rv">
+        <h3>Kairós avisa a quien debe actuar</h3>
+        <p>El nombre del estudiante se tiñe de color en las listas y una campana de notificaciones avisa cuando alguien cruza los umbrales de riesgo.</p>
+        <span class="who">Docente y coordinación</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NIVELES ================= -->
+<section class="s" id="alertas">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kicker">Niveles de riesgo</span>
+      <h2>Cuatro niveles, un criterio claro</h2>
+      <p>Las inasistencias se cuentan por corte académico y por día: si el docente corrige un registro, la falta deja de contar.</p>
+    </div>
+    <div class="levels">
+      <div class="lvl rv" style="--c:var(--ok)"><b>0–2</b><h3>Normal</h3><p>Sin señales de riesgo en el corte.</p></div>
+      <div class="lvl rv" style="--c:var(--mid)"><b>3</b><h3>Alerta</h3><p>Primera señal: se activa la notificación.</p></div>
+      <div class="lvl rv" style="--c:var(--high)"><b>5</b><h3>Alto</h3><p>El riesgo crece y pide seguimiento.</p></div>
+      <div class="lvl rv" style="--c:var(--crit)"><b>7+</b><h3>Crítico</h3><p>Requiere intervención prioritaria.</p></div>
+    </div>
+    <p class="rule-note rv"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>Cada corte (2026-1, 2026-2) empieza en cero, y los cortes anteriores quedan disponibles solo para consulta.</p>
+  </div>
+</section>
+
+<!-- ================= FUNCIONES ================= -->
+<section class="s" id="funciones">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kicker">Funciones</span>
+      <h2>Lo necesario para hacer seguimiento, nada más</h2>
+    </div>
+    <div class="feats">
+      <article class="card feat rv"><div class="ic"><svg class="ico" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg></div><h3>Planilla tipo Excel</h3><p>Marca la asistencia con un clic por estudiante y guarda todos los cambios en lote.</p></article>
+      <article class="card feat rv"><div class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div><h3>Alertas con campana</h3><p>Avisos automáticos y nombres teñidos según el nivel de riesgo en listas y planillas.</p></article>
+      <article class="card feat rv"><div class="ic"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></div><h3>Panel por niveles</h3><p>Profundiza de la institución a la carrera y de la carrera al grupo, con indicadores de asistencia y riesgo.</p></article>
+      <article class="card feat rv"><div class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg></div><h3>Carga desde Excel</h3><p>Sube archivos .xlsx o CSV, o pega las filas desde Excel, con vista previa antes de guardar.</p></article>
+      <article class="card feat rv"><div class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/><path d="M22 10v6"/></svg></div><h3>Carreras, grupos y cortes</h3><p>Organiza la estructura académica y cuenta las faltas dentro de cada corte.</p></article>
+      <article class="card feat rv"><div class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Cada rol ve lo suyo</h3><p>La interfaz muestra solo las acciones que el rol puede realizar, sin botones que no sirven.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ROLES ================= -->
+<section class="s" id="roles">
+  <div class="wrap">
+    <div class="sec-head rv" style="text-align:center;margin-left:auto;margin-right:auto">
+      <span class="kicker">Roles</span>
+      <h2>Una vista pensada para cada persona</h2>
+    </div>
+    <div class="roles">
+      <article class="card role rv" style="--rc:var(--k-teal)">
+        <h3>Docente</h3><p class="sub">Toma la asistencia de sus grupos</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Planilla de asistencia de los grupos que tiene asignados</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Alertas de sus estudiantes</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Panel resumido de sus grupos</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Cambio de su propia contraseña</li>
+        </ul>
+      </article>
+      <article class="card role rv" style="--rc:var(--k-navy)">
+        <h3>Coordinador</h3><p class="sub">Ve el panorama de todos los docentes</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Carga de listados de estudiantes y docentes</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Carreras, grupos y cortes académicos</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Panel por institución, carrera y grupo</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg>Actividad de registro de cada docente</li>
+        </ul>
+      </article>
+    </div>
+    <p class="role-note rv" style="text-align:center">Las cuentas de coordinador las autoriza el equipo de desarrollo.</p>
+  </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="final">
+  <div class="wrap">
+    <div class="card rv">
+      <div>
+        <h2>Cada inasistencia cuenta. Cada aviso a tiempo, también.</h2>
+        <p>Entra con tu correo institucional y empieza a hacer seguimiento a tus grupos.</p>
+      </div>
+      <a class="btn btn-primary btn-lg" href="index.html">Iniciar sesión
+        <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-inst">
+      <img class="crest" src="data:image/png;base64,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" alt="Escudo del Politécnico Colombiano Jaime Isaza Cadavid">
+      <div><b>Politécnico Colombiano Jaime Isaza Cadavid</b><span>Ingeniería Informática</span></div>
+    </div>
+    <p class="foot-r">Kairós<br>Proyecto universitario · Sistema inteligente de seguimiento de asistencia, participación y detección temprana de riesgo de deserción</p>
+  </div>
+</footer>
+
+<script>
+/* Tema: usa la misma clave que el sistema, así se mantiene al pasar de la landing al login */
+(function () {
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  function applyTheme(t) {
+    document.documentElement.dataset.theme = t;
+    document.querySelectorAll('[data-theme-set]').forEach(function (b) { b.setAttribute('aria-checked', String(b.dataset.themeSet === t)); });
+    store.set('kairos-theme', t);
+  }
+  applyTheme(store.get('kairos-theme') === 'light' ? 'light' : 'dark');
+  document.querySelectorAll('[data-theme-set]').forEach(function (b) { b.addEventListener('click', function () { applyTheme(b.dataset.themeSet); }); });
+
+  /* Simulador: umbrales iguales a CONFIG.RIESGO del sistema (alerta 3, alto 5, crítico 7) */
+  var R = { alerta: 3, alto: 5, critico: 7 };
+  var LV = {
+    ok:   { label: 'Normal',  color: 'var(--ok)',   msg: 'Sin aviso por ahora.', sub: 'La campana se activa al llegar a ' + R.alerta + ' inasistencias.' },
+    mid:  { label: 'Alerta',  color: 'var(--mid)',  msg: 'La campana avisa: el estudiante llegó al nivel de alerta.', sub: 'Su nombre se tiñe de color en listas y planillas.' },
+    high: { label: 'Alto',    color: 'var(--high)', msg: 'El riesgo es alto.', sub: 'Conviene hacer seguimiento al estudiante.' },
+    crit: { label: 'Crítico', color: 'var(--crit)', msg: 'Riesgo crítico.', sub: 'Requiere intervención prioritaria.' }
+  };
+  var level = function (n) { return n >= R.critico ? 'crit' : n >= R.alto ? 'high' : n >= R.alerta ? 'mid' : 'ok'; };
+  var ticks = document.getElementById('simTicks'), marks = document.getElementById('simMarks');
+  for (var i = 1; i <= 10; i++) {
+    ticks.insertAdjacentHTML('beforeend', '<i></i>');
+    marks.insertAdjacentHTML('beforeend', '<span' + (i === R.alerta || i === R.alto || i === R.critico ? ' class="mk"' : '') + '>' + i + '</span>');
+  }
+  var range = document.getElementById('simR');
+  function paint() {
+    var n = +range.value, k = level(n), d = LV[k];
+    document.getElementById('simN').textContent = n;
+    document.getElementById('simW').textContent = n === 1 ? 'inasistencia' : 'inasistencias';
+    var b = document.getElementById('simB'); b.textContent = d.label; b.dataset.lv = k;
+    ticks.querySelectorAll('i').forEach(function (el, idx) {
+      var lv = level(idx + 1);
+      el.style.setProperty('--c', LV[lv].color);
+      el.classList.toggle('on', idx < n);
+    });
+    var bell = document.getElementById('simBell');
+    bell.classList.toggle('off', k === 'ok');
+    bell.style.setProperty('--bc', d.color);
+    document.getElementById('simMsg').innerHTML = d.msg + '<small>' + d.sub + '</small>';
+  }
+  range.addEventListener('input', paint); paint();
+
+  /* Revelado suave al hacer scroll (sin animación si el usuario lo desactivó) */
+  var els = document.querySelectorAll('.rv');
+  if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    els.forEach(function (e) { e.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function (e, i) { e.style.transitionDelay = (i % 3) * 80 + 'ms'; io.observe(e); });
+  }
+})();
+</script>
+</body>
+</html>
