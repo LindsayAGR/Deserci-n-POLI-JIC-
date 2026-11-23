@@ -7,8 +7,8 @@ const pool = require('./config/db');
 // Configuración del puerto
 const port = process.env.PORT || 4000;
 
-// Inicialización del servidor
-const server = app.listen(port, async () => {
+// Inicialización del servidor (0.0.0.0 requerido por Railway / Docker para enrutar el tráfico)
+const server = app.listen(port, '0.0.0.0', async () => {
     console.log(`=================================`);
     console.log(`Servidor logístico escuchando en el puerto: ${port}`);
     console.log(`Ambiente actual: ${process.env.NODE_ENV || 'development'}`);
