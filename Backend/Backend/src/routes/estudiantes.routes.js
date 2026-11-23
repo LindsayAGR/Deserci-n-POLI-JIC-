@@ -6,11 +6,14 @@ const {
   actualizarEstudiante, 
   eliminarEstudiante 
 } = require('../controllers/estudiantes.controller');
+const { checkRole } = require('../middlewares/auth.middleware');
 
-// Asegúrate de que cada función pasada como segundo parámetro NO sea undefined
+// GET accesible para todos los usuarios autenticados (Docente, Coordinador, Super Admin)
 router.get('/', obtenerEstudiantes);
-router.post('/', crearEstudiante);
-router.put('/:id', actualizarEstudiante);
-router.delete('/:id', eliminarEstudiante);
+
+// Mutaciones restringidas a Administrador / Coordinador y Super Admin
+router.post('/', checkRole(['Administrador', 'Super Admin']), crearEstudiante);
+router.put('/:id', checkRole(['Administrador', 'Super Admin']), actualizarEstudiante);
+router.delete('/:id', checkRole(['Administrador', 'Super Admin']), eliminarEstudiante);
 
 module.exports = router;

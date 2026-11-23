@@ -2,18 +2,22 @@ const db = require('../config/db');
 
 const obtenerReporteGeneral = async (req, res, next) => {
   try {
-    // Ejemplo de consultas para consolidar datos del sistema de deserción
-    const [totalEstudiantes] = await db.query('SELECT COUNT(*) AS total FROM estudiantes');
-    const [totalAsistencias] = await db.query('SELECT COUNT(*) AS total FROM asistencias');
-    const [totalMaterias] = await db.query('SELECT COUNT(*) AS total FROM materias');
+    // Consulta consolidada en un solo viaje de red a la base de datos (mejora de rendimiento)
+    const query = `
+      SELECT 
+        (SELECT COUNT(*) FROM estudiantes) AS estudiantes,
+        (SELECT COUNT(*) FROM asistencias) AS asistencias,
+        (SELECT COUNT(*) FROM materias) AS materias
+    `;
+    const [rows] = await db.query(query);
 
     res.status(200).json({
       success: true,
       message: 'Reporte consolidado generado exitosamente',
       data: {
-        estudiantes: totalEstudiantes[0].total,
-        asistencias: totalAsistencias[0].total,
-        materias: totalMaterias[0].total
+        estudiantes: rows[0].estudiantes,
+        asistencias: rows[0].asistencias,
+        materias: rows[0].materias
       }
     });
   } catch (error) {

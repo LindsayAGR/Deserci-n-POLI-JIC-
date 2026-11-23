@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const app = require('./app');
 const pool = require('./config/db');
@@ -25,9 +26,9 @@ const server = app.listen(port, async () => {
     console.log(`=================================`);
 });
 
-// Cierre controlado de la aplicación y conexiones a BD (Graceful Shutdown)
-process.on('SIGINT', async () => {
-    console.log('\nCerrando el servidor logístico...');
+// Función de Cierre controlado de la aplicación y conexiones a BD (Graceful Shutdown)
+const gracefulShutdown = async (signal) => {
+    console.log(`\nRecibida señal ${signal}. Cerrando el servidor logístico...`);
     
     try {
         if (pool && pool.end) {
@@ -42,4 +43,7 @@ process.on('SIGINT', async () => {
         console.log('Proceso terminado exitosamente.');
         process.exit(0);
     });
-});
+};
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

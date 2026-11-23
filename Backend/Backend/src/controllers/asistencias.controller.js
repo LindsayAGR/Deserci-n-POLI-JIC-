@@ -3,8 +3,9 @@ const db = require('../config/db');
 // GET /api/asistencias
 const obtenerAsistencias = async (req, res, next) => {
   try {
-    const query = 'SELECT * FROM asistencias';
-    const [asistencias] = await db.query(query);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 1000, 1), 5000);
+    const query = 'SELECT * FROM asistencias ORDER BY fecha DESC, id_asistencia DESC LIMIT ?';
+    const [asistencias] = await db.query(query, [limit]);
     res.status(200).json({ success: true, data: asistencias });
   } catch (error) {
     next(error);
@@ -55,7 +56,12 @@ const crearAsistencia = async (req, res, next) => {
 const eliminarAsistencia = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await db.query('DELETE FROM asistencias WHERE id_asistencia = ?', [id]);
+    const [resultado] = await db.query('DELETE FROM asistencias WHERE id_asistencia = ?', [id]);
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Asistencia no encontrada.' });
+    }
+
     res.status(200).json({ success: true, message: 'Asistencia eliminada correctamente.' });
   } catch (error) {
     next(error);

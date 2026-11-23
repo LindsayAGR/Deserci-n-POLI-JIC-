@@ -25,10 +25,11 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Middleware para validar roles específicos (ej: 'Administrador', 'Docente')
+// Middleware para validar roles específicos (ej: 'Administrador', 'Docente' o ['Administrador', 'Super Admin'])
 const checkRole = (rolesPermitidos) => {
+  const roles = Array.isArray(rolesPermitidos) ? rolesPermitidos : [rolesPermitidos];
   return (req, res, next) => {
-    if (!req.user || !rolesPermitidos.includes(req.user.rol)) {
+    if (!req.user || !roles.includes(req.user.rol)) {
       return res.status(403).json({ message: 'No tienes permisos para acceder a este recurso.' });
     }
     next();

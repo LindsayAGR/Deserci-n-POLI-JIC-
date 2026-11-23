@@ -1,9 +1,9 @@
 const db = require('../config/db');
 
-// GET /api/alertas - Obtener todas las alertas
+// GET /api/alertas - Obtener todas las alertas ordenadas por fecha reciente
 const obtenerAlertas = async (req, res, next) => {
   try {
-    const query = 'SELECT * FROM alertas';
+    const query = 'SELECT * FROM alertas ORDER BY fecha DESC, id_alerta DESC';
     const [alertas] = await db.query(query);
     res.status(200).json({ success: true, data: alertas });
   } catch (error) {
@@ -40,8 +40,17 @@ const actualizarAlerta = async (req, res, next) => {
     const { id } = req.params;
     const { tipo, descripcion } = req.body;
 
+    const [existente] = await db.query('SELECT * FROM alertas WHERE id_alerta = ?', [id]);
+    if (existente.length === 0) {
+      return res.status(404).json({ success: false, message: 'Alerta no encontrada.' });
+    }
+
+    const alerta = existente[0];
+    const nuevoTipo = tipo !== undefined ? String(tipo).trim() : alerta.tipo;
+    const nuevaDesc = descripcion !== undefined ? String(descripcion).trim() : alerta.descripcion;
+
     const query = 'UPDATE alertas SET tipo = ?, descripcion = ? WHERE id_alerta = ?';
-    await db.query(query, [tipo, descripcion, id]);
+    await db.query(query, [nuevoTipo, nuevaDesc, id]);
 
     res.status(200).json({ success: true, message: 'Alerta actualizada correctamente.' });
   } catch (error) {
@@ -53,7 +62,12 @@ const actualizarAlerta = async (req, res, next) => {
 const eliminarAlerta = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await db.query('DELETE FROM alertas WHERE id_alerta = ?', [id]);
+    const [resultado] = await db.query('DELETE FROM alertas WHERE id_alerta = ?', [id]);
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Alerta no encontrada.' });
+    }
+
     res.status(200).json({ success: true, message: 'Alerta eliminada correctamente.' });
   } catch (error) {
     next(error);

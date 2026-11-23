@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const usuariosController = require('../controllers/usuarios.controller');
+const { checkRole } = require('../middlewares/auth.middleware');
+
+// Todas las rutas de administración de usuarios requieren permisos de Administrador o Super Admin
+router.use(checkRole(['Administrador', 'Super Admin']));
 
 // GET /api/usuarios -> Listar todos
 router.get('/', usuariosController.obtenerUsuarios);

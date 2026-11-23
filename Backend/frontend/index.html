@@ -1062,7 +1062,7 @@ Laura Ríos	100987654	laura@elpoli.edu.co	Ingeniería Informática	G-01"></texta
    CONFIGURACIÓN
    ========================================================================== */
 const CONFIG = {
-  API_BASE: 'http://localhost:4000',
+  API_BASE: (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) ? '' : 'http://localhost:4000',
   TIMEOUT_MS: 8000,
   REFRESCO_SEG: 60,
   EP: {
@@ -1453,14 +1453,15 @@ function errMsg(r, fallback) {
   return m ? (typeof m === 'string' ? m : JSON.stringify(m)) : fallback;
 }
 async function pingApi() {
-  const line = logSys('Comprobando <b>' + esc(CONFIG.API_BASE) + '</b>'); line.classList.add('caret');
+  const displayHost = CONFIG.API_BASE || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000');
+  const line = logSys('Comprobando <b>' + esc(displayHost) + '</b>'); line.classList.add('caret');
   try {
     const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 3000);
-    await fetch(CONFIG.API_BASE, { mode: 'no-cors', signal: ctrl.signal }); clearTimeout(timer);
-    setApiStatus('online'); line.classList.remove('caret'); logSys('El servidor respondió.');
+    await fetch((CONFIG.API_BASE || '') + '/api/health', { signal: ctrl.signal }); clearTimeout(timer);
+    setApiStatus('online'); line.classList.remove('caret'); logSys('El servidor respondió correctamente.');
   } catch (e) {
     setApiStatus('offline'); line.classList.remove('caret');
-    logSys('No hay respuesta de ' + esc(CONFIG.API_BASE) + '. Enciende el backend para iniciar sesión.', 'err');
+    logSys('No hay respuesta de ' + esc(displayHost) + '. Enciende el backend para iniciar sesión.', 'err');
   }
 }
 

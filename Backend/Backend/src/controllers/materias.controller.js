@@ -56,10 +56,19 @@ const actualizarMateria = async (req, res, next) => {
     const { id } = req.params;
     const { nombre, codigo, creditos, fk_usuario } = req.body;
 
-    const creditosFinal = creditos || '3';
+    const [existente] = await db.query('SELECT * FROM materias WHERE id_materia = ?', [id]);
+    if (existente.length === 0) {
+      return res.status(404).json({ success: false, message: 'Materia no encontrada.' });
+    }
+
+    const mat = existente[0];
+    const nuevoNombre = nombre !== undefined ? String(nombre).trim() : mat.nombre;
+    const nuevoCodigo = codigo !== undefined ? String(codigo).trim() : mat.codigo;
+    const creditosFinal = creditos !== undefined ? creditos : mat.creditos;
+    const nuevoUsuario = fk_usuario !== undefined ? fk_usuario : mat.fk_usuario;
 
     const query = 'UPDATE materias SET nombre = ?, codigo = ?, creditos = ?, fk_usuario = ? WHERE id_materia = ?';
-    await db.query(query, [nombre, codigo, creditosFinal, fk_usuario || null, id]);
+    await db.query(query, [nuevoNombre, nuevoCodigo, creditosFinal, nuevoUsuario || null, id]);
 
     res.status(200).json({ success: true, message: 'Materia actualizada correctamente.' });
   } catch (error) {
@@ -71,7 +80,12 @@ const actualizarMateria = async (req, res, next) => {
 const eliminarMateria = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await db.query('DELETE FROM materias WHERE id_materia = ?', [id]);
+    const [resultado] = await db.query('DELETE FROM materias WHERE id_materia = ?', [id]);
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Materia no encontrada.' });
+    }
+
     res.status(200).json({ success: true, message: 'Materia eliminada correctamente.' });
   } catch (error) {
     next(error);
