@@ -16,6 +16,7 @@ const obtenerEstudiantes = async (req, res, next) => {
         e.periodo, 
         e.fk_matricula 
       FROM estudiantes e
+      ORDER BY e.id_estudiante DESC
     `;
 
     let queryParams = [];

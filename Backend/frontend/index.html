@@ -1818,7 +1818,13 @@ let pollTimer = null;
 function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
 function startPolling() {
   stopPolling();
-  pollTimer = setInterval(() => { if (state.auth && document.visibilityState === 'visible') { loadAsistencias(true); loadAlertas(true); } }, CONFIG.REFRESCO_SEG * 1000);
+  pollTimer = setInterval(() => {
+    if (state.auth && document.visibilityState === 'visible') {
+      loadEstudiantes(true);
+      loadAsistencias(true);
+      loadAlertas(true);
+    }
+  }, CONFIG.REFRESCO_SEG * 1000);
 }
 
 function stateRow(cols, key, hasRows, emptyText) {
@@ -2458,15 +2464,19 @@ $('#uploadBulkBtn').addEventListener('click', async () => {
 function renderEstudiantes() {
   const q = $('#estSearch').value.trim().toLowerCase();
   const fc = $('#estFilterCarrera').value, fg = $('#estFilterGrupo').value;
-  const list = state.estVis.filter(s =>
+  // Si el usuario escribe una búsqueda explícita (nombre, documento o correo), busca en toda la lista de estudiantes
+  // para no ocultarlo si fue registrado en otro corte/periodo o grupo. Si no busca, respeta los filtros de corte/rol.
+  const sourceList = q ? state.estudiantes : state.estVis;
+  const list = sourceList.filter(s =>
     (!fc || s.carrera === fc) &&
     (!fg || s.grupo === fg) &&
-    (!q || [s.nombre, s.documento, s.id, s.correo].some(v => v != null && String(v).toLowerCase().includes(q)))
+    (!q || [s.nombre, s.documento, s.id, s.correo, s.carrera, s.grupo, s.periodo].some(v => v != null && String(v).toLowerCase().includes(q)))
   );
-  $('#estCount').textContent = state.status.est === 'ok' ? `${nf.format(list.length)} de ${nf.format(state.estVis.length)} estudiantes` : '';
+  $('#estCount').textContent = state.status.est === 'ok' ? `${nf.format(list.length)} de ${nf.format(sourceList.length)} estudiantes` : '';
   const vacio = can('estudiantes', 'editar') ? 'Aún no hay estudiantes. Carga un listado desde el panel derecho.' : 'Aún no hay estudiantes asignados a tus grupos. El coordinador debe cargar el listado.';
   const empty = stateRow(6, 'est', list.length, q || fc || fg ? 'Ningún estudiante coincide con los filtros.' : vacio);
-  $('#estBody').innerHTML = empty || list.slice(0, 150).map(s => {
+  const displayLimit = q ? 500 : 300;
+  $('#estBody').innerHTML = empty || list.slice(0, displayLimit).map(s => {
     const f = faltasOf(s.id), lv = levelByFaltas(f);
     return `<tr data-lv="${lv}">
       <td><span class="idchip">${esc(s.id ?? '—')}</span></td>
