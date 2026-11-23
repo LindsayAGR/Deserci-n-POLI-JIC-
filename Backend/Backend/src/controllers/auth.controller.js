@@ -35,12 +35,12 @@ const login = async (req, res, next) => {
     }
 
     const query = `
-      SELECT u.id_usuario, u.nombre, u.correo, u.contrasena, r.nombre AS rol
+      SELECT u.id_usuario, u.nombre, u.correo, u.documento, u.contrasena, r.nombre AS rol
       FROM usuarios u
       LEFT JOIN roles r ON u.fk_rol = r.id_rol
-      WHERE u.correo = ?
+      WHERE u.correo = ? OR (u.documento IS NOT NULL AND u.documento = ?)
     `;
-    const [rows] = await pool.query(query, [correo]);
+    const [rows] = await pool.query(query, [correo, correo]);
 
     if (rows.length === 0) {
       return res.status(401).json({ message: 'Credenciales inválidas.' });
@@ -65,6 +65,7 @@ const login = async (req, res, next) => {
       usuario: {
         id_usuario: usuario.id_usuario,
         nombre: usuario.nombre,
+        documento: usuario.documento,
         correo: usuario.correo,
         rol: usuario.rol
       }
@@ -90,8 +91,8 @@ const register = async (req, res, next) => {
 
     // Verificar si el correo o el documento ya existen en la base de datos
     const [existingUser] = await pool.query(
-      'SELECT id_usuario FROM usuarios WHERE correo = ? OR (documento IS NOT NULL AND documento = ?)',
-      [correo, doc]
+      'SELECT id_usuario FROM usuarios WHERE correo = ? OR (? IS NOT NULL AND documento = ?)',
+      [String(correo).trim(), doc, doc]
     );
     if (existingUser.length > 0) {
       return res.status(409).json({ message: 'El correo o el documento ya está registrado.' });
@@ -113,8 +114,8 @@ const register = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(String(contrasena), 10);
 
     await pool.query(
-      'INSERT INTO usuarios (nombre, correo, contrasena, documento, fk_rol) VALUES (?, ?, ?, ?, ?)',
-      [String(nombre).trim(), String(correo).trim(), hashedPassword, doc, rolDefinitivo]
+      'INSERT INTO usuarios (nombre, documento, correo, contrasena, fk_rol) VALUES (?, ?, ?, ?, ?)',
+      [String(nombre).trim(), doc, String(correo).trim(), hashedPassword, rolDefinitivo]
     );
 
     return res.status(201).json({ message: 'Usuario registrado exitosamente.' });

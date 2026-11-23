@@ -886,7 +886,7 @@ Laura Ríos	100987654	laura@elpoli.edu.co	Ingeniería Informática	G-01"></texta
               <article class="card">
                 <div class="card-head"><div><h2 class="card-title">Docentes creados</h2><p class="card-desc" id="docCount"></p></div></div>
                 <div class="table-wrap"><table>
-                  <thead><tr><th>Docente</th><th>Correo</th><th>Grupos</th><th>Creado</th></tr></thead>
+                  <thead><tr><th>Docente</th><th>Documento / ID</th><th>Correo</th><th>Grupos</th><th>Creado</th></tr></thead>
                   <tbody id="docListBody"></tbody>
                 </table></div>
                 <p class="rbac-note"><svg class="ico" data-icon="key" viewBox="0 0 24 24"></svg>La contraseña inicial de cada docente es su ID. Puede cambiarla con el botón de la llave (arriba a la derecha).</p>
@@ -1068,6 +1068,7 @@ const CONFIG = {
   EP: {
     login:       '/api/auth/login',
     register:    '/api/auth/register',
+    usuarios:    '/api/usuarios',
     estudiantes: '/api/estudiantes',
     materias:    '/api/materias',
     asistencias: '/api/asistencias',
@@ -1353,7 +1354,7 @@ function saveDocente(d) { const l = getDocentes().filter(x => plain(x.correo) !=
 
 const state = {
   auth: false, token: null, user: null, role: 'docente', viewAs: null, sid: 0, logN: 0,
-  estudiantes: [], materias: [], asistencias: [], alertas: [], usuariosCreados: [],
+  estudiantes: [], materias: [], asistencias: [], alertas: [], usuariosCreados: [], docentesDb: [],
   fm: {}, hoy: {}, eff: [], estVis: [], saving: false, bulkBusy: false, docParsed: [], docBusy: false,
   periodo: (() => { const sp = store.get('kairosPeriodo'); return sp === null ? periodoDeFecha(new Date()) : sp; })(),
   /* Estado de planilla tipo Excel (cambios sin guardar: { [estId]: 'Presente'|'Ausente'|'Justificada' }) */
@@ -1365,7 +1366,7 @@ const state = {
   /* Carga masiva CSV/Excel */
   bulkParsed: [],
   seen: new Set(), prevKeys: null, alertsReady: false,
-  status: { est: 'idle', mat: 'idle', asis: 'idle', alert: 'idle' }, errors: {}, perms: buildPerms()
+  status: { est: 'idle', mat: 'idle', asis: 'idle', alert: 'idle', doc: 'idle' }, errors: {}, perms: buildPerms()
 };
 const role = () => state.viewAs || state.role;
 const corteActual = () => !state.periodo || state.periodo === periodoDeFecha(new Date());
@@ -1375,7 +1376,12 @@ function misGrupos() {
   if (role() !== 'docente') return null;
   let g = state.user && state.user.grupos;
   if (typeof g === 'string') g = g.split(/[|,\/]/);
-  if (!Array.isArray(g) || !g.length) { const me = getDocentes().find(d => plain(d.correo) === plain(pick(state.user || {}, ['correo', 'email']))); g = me && me.grupos; }
+  if (!Array.isArray(g) || !g.length) {
+    const userMail = plain(pick(state.user || {}, ['correo', 'email']));
+    const userDoc = String(pick(state.user || {}, ['documento', 'id']) || '').trim();
+    const me = getDocentes().find(d => (userMail && plain(d.correo) === userMail) || (userDoc && String(d.documento || d.id || '').trim() === userDoc));
+    g = me && me.grupos;
+  }
   g = (g || []).map(x => plain(String(x).trim())).filter(Boolean);
   return g.length ? new Set(g) : null;
 }
@@ -1533,8 +1539,8 @@ function applyRole() {
 $('#viewAs').addEventListener('change', e => { state.viewAs = e.target.value || null; applyRole(); });
 
 function resetData() {
-  state.estudiantes = []; state.materias = []; state.asistencias = []; state.alertas = []; state.usuariosCreados = [];
-  state.status = { est: 'idle', mat: 'idle', asis: 'idle', alert: 'idle' }; state.errors = {};
+  state.estudiantes = []; state.materias = []; state.asistencias = []; state.alertas = []; state.usuariosCreados = []; state.docentesDb = [];
+  state.status = { est: 'idle', mat: 'idle', asis: 'idle', alert: 'idle', doc: 'idle' }; state.errors = {};
   state.draftAsis = {}; state.dashCarrera = ''; state.dashGrupo = ''; state.bulkParsed = []; state.saving = false; state.bulkBusy = false; state.docBusy = false; $('#bulkPaste').value = ''; $('#docPaste').value = ''; state.docParsed = [];
   $('#csvFileName').hidden = true;
   state.prevKeys = null; state.alertsReady = false; state.planOnly = false;
@@ -1644,6 +1650,9 @@ function route() {
   const t = titleFor(view); $('#vTitle').textContent = t[0]; $('#vSub').textContent = t[1];
   document.title = t[0] + ' | Kairós';
   $('#content').scrollTop = 0;
+  if (view === 'docentes' && can('docentes', 'ver')) {
+    loadDocentes(true);
+  }
 }
 window.addEventListener('hashchange', route);
 const closeLogsIfSmall = () => { if (window.innerWidth < 900) setLogs(false); };
@@ -1813,7 +1822,13 @@ const loadEstudiantes = q => loadList('est', CONFIG.EP.estudiantes, l => { state
 const loadMaterias    = q => loadList('mat', CONFIG.EP.materias,    l => { state.materias = l.map(normMat); }, q);
 const loadAsistencias = q => loadList('asis', CONFIG.EP.asistencias, l => { state.asistencias = l.map(normAsis); }, q);
 const loadAlertas     = q => loadList('alert', CONFIG.EP.alertas,    l => { state.alertas = l; }, q);
-const loadAll = () => Promise.all([loadEstudiantes(), loadMaterias(), loadAsistencias(), loadAlertas()]);
+const loadDocentes    = async q => {
+  if (!state.token || !can('docentes', 'ver')) return false;
+  return loadList('doc', CONFIG.EP.usuarios, l => {
+    state.docentesDb = l.filter(u => Number(u.fk_rol) === CONFIG.ROL_ID_DOCENTE || String(u.rol || '').toLowerCase() === 'docente');
+  }, q);
+};
+const loadAll = () => Promise.all([loadEstudiantes(), loadMaterias(), loadAsistencias(), loadAlertas(), loadDocentes()]);
 let pollTimer = null;
 function stopPolling() { if (pollTimer) { clearInterval(pollTimer); pollTimer = null; } }
 function startPolling() {
@@ -1823,6 +1838,7 @@ function startPolling() {
       loadEstudiantes(true);
       loadAsistencias(true);
       loadAlertas(true);
+      if (can('docentes', 'ver')) loadDocentes(true);
     }
   }, CONFIG.REFRESCO_SEG * 1000);
 }
@@ -2613,7 +2629,9 @@ $('#formRegister').addEventListener('submit', async e => {
   const r = await api('POST', CONFIG.EP.register, { nombre: n.value.trim(), correo: c.value.trim(), contrasena: p.value, fk_rol: fk });
   if (!r.ok) { formError(form, errMsg(r, 'No se pudo crear el usuario (código ' + r.status + ').')); return; }
   state.usuariosCreados.unshift({ hora: clock().slice(0, 5), nombre: n.value.trim(), correo: c.value.trim(), rol: ROL_TXT[fk] || String(fk) });
-  renderUsuarios(); toast('Usuario creado'); form.reset(); rol.value = '2'; n.focus();
+  renderUsuarios();
+  if (fk === 2 && can('docentes', 'ver')) loadDocentes(true);
+  toast('Usuario creado'); form.reset(); rol.value = '2'; n.focus();
 });
 
 function renderRbac() {
@@ -2748,18 +2766,29 @@ $('#formPeriodo').addEventListener('submit', e => {
    ========================================================================== */
 function parseDocLines(raw) {
   const lines = String(raw || '').replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim());
-  const rows = [], skipped = [], seen = new Set(getDocentes().map(d => plain(d.correo)));
+  const seenEmails = new Set([
+    ...getDocentes().map(d => plain(d.correo)),
+    ...(state.docentesDb || []).map(d => plain(d.correo))
+  ]);
+  const seenDocs = new Set([
+    ...getDocentes().map(d => String(d.documento || d.id || '').trim()).filter(Boolean),
+    ...(state.docentesDb || []).map(d => String(d.documento || '').trim()).filter(Boolean)
+  ]);
+  const rows = [], skipped = [];
   lines.forEach((line, i) => {
     const sep = line.includes('\t') ? '\t' : line.includes(';') ? ';' : ',';
     const cols = line.split(sep).map(c => c.trim().replace(/^["']|["']$/g, ''));
     if (i === 0 && /^nombre/i.test(cols[0])) return;
     if (cols.length < 3) { skipped.push(`Fila ${i + 1}: faltan columnas (Nombre, ID, Correo)`); return; }
-    const [nombre, id, correo, gr = ''] = cols;
+    const [nombre, rawId, correo, gr = ''] = cols;
+    const id = String(rawId || '').replace(/[.\s-]/g, '');
     if (!nombre) { skipped.push(`Fila ${i + 1}: falta el nombre`); return; }
     if (!/^[A-Za-z0-9]{6,20}$/.test(id)) { skipped.push(`Fila ${i + 1}: ID inválido "${id}" (6 a 20 letras o números, es la contraseña inicial)`); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { skipped.push(`Fila ${i + 1}: correo inválido`); return; }
-    if (seen.has(plain(correo))) { skipped.push(`Fila ${i + 1}: ${correo} ya está cargado o repetido`); return; }
-    seen.add(plain(correo));
+    if (seenEmails.has(plain(correo))) { skipped.push(`Fila ${i + 1}: ${correo} ya está registrado`); return; }
+    if (seenDocs.has(id)) { skipped.push(`Fila ${i + 1}: el documento/ID ${id} ya está registrado`); return; }
+    seenEmails.add(plain(correo));
+    seenDocs.add(id);
     rows.push({ nombre, id, correo, grupos: gr.split(/[|\/]/).map(x => x.trim()).filter(Boolean) });
   });
   return { rows, skipped };
@@ -2776,10 +2805,59 @@ function updateDocPreview() {
   $('#docPreviewBody').innerHTML = rows.slice(0, 50).map(r => `<tr><td class="cell-main">${esc(r.nombre)}</td><td class="mono">${esc(r.id)}</td><td class="cell-sub">${esc(r.correo)}</td><td>${r.grupos.map(g => `<span class="tag-pill">${esc(g)}</span>`).join(' ') || '—'}</td></tr>`).join('');
 }
 function renderDocentes() {
-  const l = getDocentes();
-  $('#docCount').textContent = l.length ? `${l.length} ${l.length === 1 ? 'docente creado' : 'docentes creados'} desde este navegador` : '';
-  $('#docListBody').innerHTML = l.length ? l.map(d => `<tr><td class="cell-main">${esc(d.nombre)}</td><td class="cell-sub">${esc(d.correo)}</td><td><div class="tag-list">${(d.grupos || []).map(g => `<span class="tag-pill">${esc(g)}</span>`).join('') || '<span class="cell-sub">—</span>'}</div></td><td class="mono">${esc(fmtDate(d.hora))}</td></tr>`).join('')
-    : '<tr><td colspan="4" class="empty">Aún no has cargado docentes desde este navegador.</td></tr>';
+  const localList = getDocentes();
+  const localByEmail = new Map();
+  const localByDoc = new Map();
+  localList.forEach(d => {
+    if (d.correo) localByEmail.set(plain(d.correo), d);
+    if (d.documento || d.id) localByDoc.set(String(d.documento || d.id).trim(), d);
+  });
+
+  let list = [];
+  if (state.docentesDb && state.docentesDb.length) {
+    const seenEmails = new Set();
+    list = state.docentesDb.map(u => {
+      const emailKey = plain(u.correo);
+      seenEmails.add(emailKey);
+      const loc = localByEmail.get(emailKey) || (u.documento ? localByDoc.get(String(u.documento).trim()) : null) || {};
+      return {
+        id_usuario: u.id_usuario,
+        nombre: u.nombre,
+        documento: u.documento || loc.documento || loc.id || '—',
+        correo: u.correo,
+        grupos: loc.grupos || (u.grupos ? (Array.isArray(u.grupos) ? u.grupos : String(u.grupos).split(/[|,\/]/)) : []),
+        hora: loc.hora || null
+      };
+    });
+
+    localList.forEach(loc => {
+      if (loc.correo && !seenEmails.has(plain(loc.correo))) {
+        list.push({
+          nombre: loc.nombre,
+          documento: loc.documento || loc.id || '—',
+          correo: loc.correo,
+          grupos: loc.grupos || [],
+          hora: loc.hora || null
+        });
+      }
+    });
+  } else {
+    list = localList.map(loc => ({
+      nombre: loc.nombre,
+      documento: loc.documento || loc.id || '—',
+      correo: loc.correo,
+      grupos: loc.grupos || [],
+      hora: loc.hora || null
+    }));
+  }
+
+  const countText = list.length
+    ? `${list.length} ${list.length === 1 ? 'docente registrado' : 'docentes registrados'}`
+    : '';
+  $('#docCount').textContent = countText;
+  $('#docListBody').innerHTML = list.length
+    ? list.map(d => `<tr><td class="cell-main">${esc(d.nombre)}</td><td class="mono">${esc(d.documento || '—')}</td><td class="cell-sub">${esc(d.correo)}</td><td><div class="tag-list">${(d.grupos || []).map(g => `<span class="tag-pill">${esc(g)}</span>`).join('') || '<span class="cell-sub">—</span>'}</div></td><td class="mono">${d.hora ? esc(fmtDate(d.hora)) : '<span class="cell-sub">En base de datos</span>'}</td></tr>`).join('')
+    : '<tr><td colspan="5" class="empty">No hay docentes registrados en el sistema.</td></tr>';
 }
 $('#docPaste').addEventListener('input', updateDocPreview);
 $('#clearDocBtn').addEventListener('click', () => { $('#docPaste').value = ''; $('#docFileInput').value = ''; updateDocPreview(); });
@@ -2809,15 +2887,24 @@ $('#uploadDocBtn').addEventListener('click', async () => {
     const r = rows[i];
     const res = await api('POST', CONFIG.EP.register, { nombre: r.nombre, correo: r.correo, contrasena: r.id, fk_rol: CONFIG.ROL_ID_DOCENTE, documento: r.id, grupos: r.grupos }, true);
     if (sid !== state.sid) { state.docBusy = false; return; }
-    if (res.ok) { ok++; saveDocente({ nombre: r.nombre, correo: r.correo, grupos: r.grupos, hora: localStamp() }); renderDocentes(); }
-    else { failed.push(r); if (res.net || res.status === 401) { failed.push(...rows.slice(i + 1)); break; } }
+    if (res.ok) {
+      ok++;
+      saveDocente({ nombre: r.nombre, correo: r.correo, documento: r.id, grupos: r.grupos, hora: localStamp() });
+      renderDocentes();
+    } else {
+      failed.push(r);
+      if (res.net || res.status === 401) { failed.push(...rows.slice(i + 1)); break; }
+    }
     btn.textContent = `Creando (${ok + failed.length}/${rows.length})...`;
   }
   state.docBusy = false; btn.textContent = 'Crear cuentas de docentes';
   $('#docPaste').value = failed.map(r => [r.nombre, r.id, r.correo, r.grupos.join('|')].join('\t')).join('\n');
   updateDocPreview();
-  if (ok) toast(`${ok} ${ok === 1 ? 'cuenta creada' : 'cuentas creadas'}. Entran con su correo y su ID.`);
-  if (failed.length) { box.textContent = `${failed.length} no se pudieron crear (correo ya registrado, sin permiso o sin conexión). Quedaron en la caja para reintentar.`; box.hidden = false; }
+  if (ok) {
+    await loadDocentes(true);
+    toast(`${ok} ${ok === 1 ? 'cuenta creada' : 'cuentas creadas'}. Entran con su correo y su ID.`);
+  }
+  if (failed.length) { box.textContent = `${failed.length} no se pudieron crear (correo o documento ya registrado, sin permiso o sin conexión). Quedaron en la caja para reintentar.`; box.hidden = false; }
 });
 
 /* ==========================================================================
